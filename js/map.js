@@ -11,26 +11,29 @@ let shelterMarkers = [];
 let currentMarker = null;
 
 export function initMap() {
+  // 空スタイルで初期化する。空スタイルの 'load' はタイルの成否に関わらず必ず発火するため、
+  // オフラインで基盤タイルが1枚も無い場合でもアプリ(パネル/避難所/グラフ)が確実に起動する。
+  // ベース地図(地理院タイル)は 'load' 後にレイヤとして追加する。
   map = new maplibregl.Map({
     container: "map",
     center: INITIAL_CENTER,
     zoom: INITIAL_ZOOM,
-    style: {
-      version: 8,
-      sources: {
-        base: {
-          type: "raster",
-          tiles: [BASE_TILE],
-          tileSize: 256,
-          attribution: BASE_ATTRIBUTION,
-        },
-      },
-      layers: [{ id: "base", type: "raster", source: "base" }],
-    },
+    style: { version: 8, sources: {}, layers: [] },
   });
   map.addControl(new maplibregl.NavigationControl(), "top-right");
   map.addControl(new maplibregl.ScaleControl({ unit: "metric" }));
-  return new Promise((resolve) => map.on("load", () => resolve(map)));
+  return new Promise((resolve) => {
+    map.once("load", () => {
+      map.addSource("base", {
+        type: "raster",
+        tiles: [BASE_TILE],
+        tileSize: 256,
+        attribution: BASE_ATTRIBUTION,
+      });
+      map.addLayer({ id: "base", type: "raster", source: "base" });
+      resolve(map);
+    });
+  });
 }
 
 // ハザードタイルを差し替える（半透明でベースに重畳）
