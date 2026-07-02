@@ -11,12 +11,15 @@ import {
   onMapClick,
 } from "./map.js";
 import { getRoute, getApiKey, setApiKey, hasApiKey } from "./route.js";
+import { renderHazardChart } from "./chart.js";
 
 const state = {
   disaster: "earthquake",
   origin: null, // {lon, lat}
   ranked: [],
   selectedId: null,
+  counts: null, // {disasterKey: 対応施設数}
+  total: 0,
 };
 
 // DOM
@@ -28,6 +31,8 @@ const locationStatus = $("#location-status");
 const shelterList = $("#shelter-list");
 const shelterCount = $("#shelter-count");
 const legend = $("#legend");
+const hazardChart = $("#hazard-chart");
+const statsTotal = $("#stats-total");
 const orsKeyInput = $("#ors-key");
 const saveKeyBtn = $("#save-key-btn");
 const keyStatus = $("#key-status");
@@ -35,7 +40,14 @@ const keyStatus = $("#key-status");
 async function boot() {
   await initMap();
   applyDisaster("earthquake");
-  await loadShelters().catch((e) => alert(e.message));
+
+  // 避難所を読み込み、災害種別ごとの対応状況を集計してグラフ表示
+  const shelters = await loadShelters().catch((e) => {
+    alert(e.message);
+    return [];
+  });
+  computeCounts(shelters);
+  renderChart();
 
   // 位置情報が使えない/拒否された環境向け: 地図クリックで現在地を指定
   onMapClick((lon, lat) => {
@@ -64,11 +76,29 @@ async function boot() {
   });
 }
 
+function computeCounts(shelters) {
+  const counts = { earthquake: 0, tsunami: 0, flood: 0, landslide: 0 };
+  for (const s of shelters) {
+    for (const d of s.disasters) {
+      if (d in counts) counts[d] += 1;
+    }
+  }
+  state.counts = counts;
+  state.total = shelters.length;
+}
+
+function renderChart() {
+  if (!state.counts) return;
+  statsTotal.textContent = `全${state.total}施設`;
+  renderHazardChart(hazardChart, state.counts, state.total, state.disaster);
+}
+
 function applyDisaster(key) {
   state.disaster = key;
   const cfg = DISASTERS[key];
   setHazardLayers(cfg.hazardTiles);
   hazardNote.textContent = cfg.note;
+  renderChart();
 
   if (cfg.legend) {
     legend.classList.remove("hidden");

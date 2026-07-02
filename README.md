@@ -52,10 +52,22 @@ python3 -m http.server 8000
 2. アプリ左パネルの「⚙ ルート探索の設定」にキーを貼り付けて保存
    （キーはブラウザの localStorage に保存され、ルート計算時に ORS へのみ送信されます）
 
-## 実データへの差し替え
+## 避難所データ
 
-- **避難所**: [国土数値情報「指定緊急避難場所」](https://nlftp.mlit.go.jp/ksj/)（Shapefile/GeoJSON）を取得し、
-  `data/shelters.sample.geojson` と同じ構造（`name`, `kind`, `disasters`, `capacity`, `address`）に整形して差し替え。
+現在は **国土地理院「指定緊急避難場所データ」（東京都港区・61施設）** を加工して同梱しています（`data/shelters.geojson`）。
+出典表示のうえ利用しています。
+
+### 別の地域に差し替える
+1. [指定緊急避難場所データ（国土地理院）](https://hinanmap.gsi.go.jp/hinanjocp/hinanbasho/koukaidate.html) から対象市町村の GeoJSON/CSV を取得
+2. 変換：
+   ```bash
+   node tools/convert-shelters.mjs <入力.geojson> data/shelters.geojson [minLon minLat maxLon maxLat]
+   ```
+   （災害種別フラグの列「洪水/津波/地震/崖崩れ…」を自動でマッピング。属性名が違えばスクリプト上部の `DISASTER_FIELDS` を調整）
+3. `js/config.js` の `INITIAL_CENTER` をその地域に変更
+4. `data/shelters.geojson` が無い場合は `data/shelters.sample.geojson` に自動フォールバック
+
+- 代替の実データ源：[国土数値情報](https://nlftp.mlit.go.jp/ksj/)、[G空間情報センター](https://www.geospatial.jp/ckan/dataset/hinanbasho)、各自治体オープンデータ
 - **洪水回避ポリゴン**（任意）: 国土数値情報「浸水想定区域」を GeoJSON 化し `data/hazard-flood.geojson` に配置すると、
   洪水時のルート探索で `avoid_polygons` として浸水域を回避します。
 
