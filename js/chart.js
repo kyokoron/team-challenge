@@ -4,6 +4,7 @@
 const ORDER = [
   { key: "earthquake", label: "地震" },
   { key: "tsunami", label: "津波" },
+  { key: "typhoon", label: "台風・高潮" },
   { key: "flood", label: "洪水" },
   { key: "landslide", label: "土砂災害" },
 ];

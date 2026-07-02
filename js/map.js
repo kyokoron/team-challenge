@@ -87,9 +87,16 @@ export function setShelterMarkers(shelters, topIds, onClick) {
       num.style.cssText = "transform:rotate(45deg);color:#fff;font-size:12px;font-weight:700;";
       el.appendChild(num);
     }
+    const q = encodeURIComponent(`${s.name} ${s.address || ""}`.trim());
+    const gmaps = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    const gsearch = `https://www.google.com/search?q=${q}`;
     const popup = new maplibregl.Popup({ offset: 20 }).setHTML(
-      `<strong>${s.name}</strong><br>${s.kind || ""}<br>徒歩約${s.minutes}分` +
-        (s.elevation != null ? `<br>標高 約${s.elevation}m` : "")
+      `<strong>${s.name}</strong>` +
+        `<br>${s.kind || ""}` +
+        (s.minutes ? `<br>徒歩約${s.minutes}分` : "") +
+        (s.elevation != null ? `<br>標高 約${s.elevation}m` : "") +
+        `<div class="popup-links"><a href="${gmaps}" target="_blank" rel="noopener">Googleマップで開く</a>` +
+        `<a href="${gsearch}" target="_blank" rel="noopener">Google検索</a></div>`
     );
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat([s.lon, s.lat])
@@ -125,6 +132,11 @@ export function clearRoute() {
 // 地図クリック時のコールバック登録（位置情報が使えない環境の代替入力）
 export function onMapClick(cb) {
   map.on("click", (e) => cb(e.lngLat.lng, e.lngLat.lat));
+}
+
+// パネル幅変更後などに地図の描画サイズを再計算する
+export function resizeMap() {
+  if (map) map.resize();
 }
 
 export function fitToRoute(geometry) {

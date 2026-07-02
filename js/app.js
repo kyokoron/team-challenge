@@ -9,6 +9,7 @@ import {
   clearRoute,
   fitToRoute,
   onMapClick,
+  resizeMap,
 } from "./map.js";
 import { getRoute, getApiKey, setApiKey, hasApiKey } from "./route.js";
 import { renderHazardChart } from "./chart.js";
@@ -27,6 +28,10 @@ const $ = (sel) => document.querySelector(sel);
 const disasterButtons = document.querySelectorAll(".disaster-btn");
 const hazardNote = $("#hazard-note");
 const locateBtn = $("#locate-btn");
+const pickBtn = $("#pick-btn");
+const mapWrap = $("#map-wrap");
+const panel = $("#panel");
+const resizer = $("#resizer");
 const locationStatus = $("#location-status");
 const shelterList = $("#shelter-list");
 const shelterCount = $("#shelter-count");
@@ -65,6 +70,16 @@ async function boot() {
 
   locateBtn.addEventListener("click", requestLocation);
 
+  // 場所を手動指定（現在地が使えない/オフラインでも任意地点を設定）
+  pickBtn.addEventListener("click", () => {
+    clickToSetEnabled = !clickToSetEnabled;
+    pickBtn.classList.toggle("is-active", clickToSetEnabled);
+    mapWrap.classList.toggle("picking", clickToSetEnabled);
+    if (clickToSetEnabled) locationStatus.textContent = "地図上の任意の地点をクリックしてください";
+  });
+
+  setupResizer();
+
   // ルート探索キー
   if (hasApiKey()) {
     orsKeyInput.value = getApiKey();
@@ -77,7 +92,7 @@ async function boot() {
 }
 
 function computeCounts(shelters) {
-  const counts = { earthquake: 0, tsunami: 0, flood: 0, landslide: 0 };
+  const counts = { earthquake: 0, tsunami: 0, typhoon: 0, flood: 0, landslide: 0 };
   for (const s of shelters) {
     for (const d of s.disasters) {
       if (d in counts) counts[d] += 1;
@@ -134,7 +149,41 @@ function setOrigin(lon, lat, label) {
   state.origin = { lon, lat };
   locationStatus.textContent = `${label}: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
   setCurrentLocation(lon, lat);
+  // 場所指定モードは1回で解除
+  if (clickToSetEnabled) {
+    clickToSetEnabled = false;
+    pickBtn.classList.remove("is-active");
+    mapWrap.classList.remove("picking");
+  }
   updateRecommendations();
+}
+
+// パネルと地図の境目をドラッグして幅を変更する
+function setupResizer() {
+  const KEY = "panel_width";
+  const saved = Number(localStorage.getItem(KEY));
+  if (saved) panel.style.width = `${saved}px`;
+
+  let dragging = false;
+  const onMove = (clientX) => {
+    if (!dragging) return;
+    const left = panel.getBoundingClientRect().left;
+    const w = Math.min(Math.max(clientX - left, 280), Math.min(720, window.innerWidth * 0.7));
+    panel.style.width = `${w}px`;
+    resizeMap();
+  };
+  resizer.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    resizer.setPointerCapture(e.pointerId);
+    document.body.style.userSelect = "none";
+  });
+  resizer.addEventListener("pointermove", (e) => onMove(e.clientX));
+  resizer.addEventListener("pointerup", (e) => {
+    dragging = false;
+    document.body.style.userSelect = "";
+    localStorage.setItem(KEY, String(Math.round(panel.getBoundingClientRect().width)));
+    resizeMap();
+  });
 }
 
 async function updateRecommendations() {
@@ -143,7 +192,7 @@ async function updateRecommendations() {
   shelterList.innerHTML = `<li class="empty">避難所を評価中…</li>`;
 
   const all = await loadShelters();
-  const ranked = await rankShelters(state.origin, state.disaster, cfg, 3);
+  const ranked = await rankShelters(state.origin, state.disaster, cfg, 5);
   state.ranked = ranked;
 
   const topIds = ranked.map((s) => s.id);
