@@ -10,7 +10,15 @@ export async function getElevation(lon, lat) {
 
   try {
     const url = `${ELEVATION_API}?lon=${lon}&lat=${lat}&outtype=JSON`;
-    const res = await fetch(url);
+    // 回線が遅い/到達不能なときにランキング全体が固まらないようタイムアウトする
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4000);
+    let res;
+    try {
+      res = await fetch(url, { signal: ctrl.signal });
+    } finally {
+      clearTimeout(timer);
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     // elevation は数値、または "-----"（データ無し）で返る

@@ -1,0 +1,19 @@
+{
+  "name": "災害時避難シミュレーター",
+  "short_name": "避難シミュレーター",
+  "description": "ハザードを考慮して避難所と避難ルートを提案する参考ツール",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#157a8c",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

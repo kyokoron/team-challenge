@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#157a8c"/>
+  <!-- 避難所を表す位置ピン -->
+  <path d="M256 108c-66 0-120 52-120 117 0 84 108 179 116 187a6 6 0 0 0 8 0c8-8 116-103 116-187 0-65-54-117-120-117z" fill="#ffffff"/>
+  <circle cx="256" cy="225" r="46" fill="#157a8c"/>
+</svg>
