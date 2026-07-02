@@ -27,7 +27,7 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, system-ui, sans-serif;
+  font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -50,22 +50,22 @@ html, body {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
-.brand { display: flex; align-items: center; gap: 14px; }
-.brand-mark {
-  width: 44px; height: 44px;
-  display: grid; place-items: center;
-  font-size: 22px;
-  background: var(--accent-tint);
-  border-radius: 12px;
+.brand {
+  display: flex;
+  align-items: center;
+}
+.brand-text {
+  padding-left: 14px;
+  border-left: 3px solid var(--accent);
 }
 .brand-text h1 {
   margin: 0;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
-  letter-spacing: .01em;
+  letter-spacing: .02em;
 }
 .brand-text p {
-  margin: 2px 0 0;
+  margin: 3px 0 0;
   font-size: 13px;
   color: var(--ink-soft);
 }
