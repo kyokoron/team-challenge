@@ -307,11 +307,42 @@ html, body {
 }
 .disclaimer strong { color: var(--ink-soft); }
 
+/* パネルと地図の境目（ドラッグで幅可変） */
+#resizer {
+  flex: 0 0 auto;
+  width: 8px;
+  cursor: col-resize;
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+  position: relative;
+}
+#resizer::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 40px;
+  border-radius: 2px;
+  background: var(--line);
+}
+#resizer:hover { background: var(--accent-tint); }
+#resizer:hover::before { background: var(--accent); }
+
+/* 場所指定モード */
+#pick-btn.is-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+#map-wrap.picking, #map-wrap.picking .maplibregl-canvas { cursor: crosshair; }
+
 /* ---------- 地図（枠づけして“余白”を持たせる） ---------- */
 #map-wrap {
   flex: 1;
   position: relative;
-  padding: 24px 24px 24px 0;
+  padding: 24px 24px 24px 24px;
   min-width: 0;
 }
 #map {
@@ -352,6 +383,9 @@ html, body {
   line-height: 1.6;
 }
 .maplibregl-popup-content strong { color: var(--accent-deep); }
+.popup-links { margin-top: 8px; display: flex; gap: 12px; }
+.popup-links a { color: var(--accent-deep); font-weight: 500; text-decoration: none; }
+.popup-links a:hover { text-decoration: underline; }
 .maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #fff; }
 .maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: #fff; }
 
@@ -361,11 +395,12 @@ html, body {
   .topbar-note { display: none; }
   #body { flex-direction: column; }
   #panel {
-    width: 100%;
+    width: 100% !important;
     min-width: 0;
     max-height: 48vh;
     padding: 18px;
   }
+  #resizer { display: none; }
   #map-wrap { padding: 0 14px 14px; }
   #map { box-shadow: var(--shadow-sm); }
   .legend { bottom: 28px; right: 28px; }

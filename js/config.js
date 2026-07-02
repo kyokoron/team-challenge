@@ -54,6 +54,17 @@ export const DISASTERS = {
     avoid: false,
     note: "津波は『高台へ逃げる』のが基本。標高が高い避難所を優先して提案します。青系ほど浸水深が大きい想定です。",
   },
+  typhoon: {
+    label: "台風・高潮",
+    hazardTiles: [
+      "https://disaportaldata.gsi.go.jp/raster/03_hightide_l2_shinsuishin_data/{z}/{x}/{y}.png",
+      "https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_data/{z}/{x}/{y}.png",
+    ],
+    legend: "高潮浸水想定／洪水浸水想定（想定最大規模）",
+    useElevation: true,
+    avoid: true,
+    note: "台風は高潮・浸水・強風の複合。高潮／浸水想定を重ねて表示し、標高が高い避難所を優先します。",
+  },
   flood: {
     label: "洪水",
     hazardTiles: ["https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_data/{z}/{x}/{y}.png"],
