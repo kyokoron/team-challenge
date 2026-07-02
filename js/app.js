@@ -42,7 +42,7 @@ const orsKeyInput = $("#ors-key");
 const saveKeyBtn = $("#save-key-btn");
 const keyStatus = $("#key-status");
 
-async function boot() {
+export async function startApp() {
   await initMap();
   applyDisaster("earthquake");
 
@@ -274,4 +274,4 @@ function appendRouteHint(shelter, text, type = "info") {
   hint.textContent = "🧭 " + text;
 }
 
-boot();
+// 起動は認証(js/auth.js)が成功したときに startApp() が呼ばれる。

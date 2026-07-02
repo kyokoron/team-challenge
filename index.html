@@ -14,6 +14,24 @@
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
+  <!-- ログイン必須ゲート（認証成功までアプリを覆う） -->
+  <div id="auth-gate" class="auth-gate hidden">
+    <div class="auth-card">
+      <div class="auth-brand">災害時避難シミュレーター</div>
+      <p class="auth-lead">ご利用にはログインが必要です。</p>
+      <div id="auth-login" class="hidden">
+        <button id="login-btn" class="primary-btn">ログイン</button>
+      </div>
+      <div id="auth-config" class="hidden">
+        <p class="hint">認証プロバイダ（Auth0）の設定が必要です。テナントのドメインとアプリのクライアントIDを入力してください。設定はこの端末に保存されます。</p>
+        <input id="auth0-domain" placeholder="例: your-tenant.jp.auth0.com" autocomplete="off" />
+        <input id="auth0-clientid" placeholder="Client ID" autocomplete="off" />
+        <button id="auth0-save" class="secondary-btn">保存して続行</button>
+      </div>
+      <p id="auth-msg" class="status-text"></p>
+    </div>
+  </div>
+
   <div id="app">
     <header id="topbar">
       <div class="brand">
@@ -22,7 +40,13 @@
           <p>ハザードを考慮して、避難所と避難ルートを提案します</p>
         </div>
       </div>
-      <span class="topbar-note">参考情報 / 平常時の避難計画支援</span>
+      <div class="topbar-right">
+        <span class="topbar-note">参考情報 / 平常時の避難計画支援</span>
+        <div id="user-area" class="user-area hidden">
+          <span id="user-name"></span>
+          <button id="logout-btn" class="secondary-btn">ログアウト</button>
+        </div>
+      </div>
     </header>
 
     <div id="body">
@@ -92,7 +116,8 @@
   </div>
 
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script type="module" src="./js/app.js"></script>
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
+  <script type="module" src="./js/auth.js"></script>
   <script>
     // オフライン対応（Service Worker）。https または localhost でのみ有効。
     if ("serviceWorker" in navigator) {

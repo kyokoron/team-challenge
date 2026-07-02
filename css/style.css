@@ -77,6 +77,57 @@ html, body {
   border-radius: 999px;
   white-space: nowrap;
 }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.user-area { display: flex; align-items: center; gap: 10px; }
+.user-area.hidden { display: none; }
+.user-area #user-name { font-size: 13px; color: var(--ink-soft); font-weight: 500; }
+.user-area .secondary-btn { margin-top: 0; min-height: 36px; padding: 6px 12px; }
+
+/* ログイン必須ゲート */
+.auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: linear-gradient(160deg, #eef3f4, #f4f6f8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.auth-gate.hidden { display: none; }
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-md);
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+.auth-brand {
+  font-size: 20px;
+  font-weight: 700;
+  padding-left: 12px;
+  border-left: 3px solid var(--accent);
+  display: inline-block;
+}
+.auth-lead { color: var(--ink-soft); font-size: 14px; margin: 16px 0 24px; }
+.auth-card .primary-btn { width: 100%; }
+.auth-card input {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: var(--surface-soft);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+}
+.auth-card input:focus { outline: none; border-color: var(--accent); background: #fff; }
+.auth-card .secondary-btn { width: 100%; }
+.auth-card .hint { font-size: 12.5px; color: var(--ink-soft); line-height: 1.8; text-align: left; margin: 0 0 14px; }
 
 /* ---------- 本体（左パネル＋地図） ---------- */
 #body { display: flex; flex: 1; min-height: 0; }
