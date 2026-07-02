@@ -89,3 +89,9 @@ export const DISASTERS = {
 
 // 洪水ルート回避に使う任意のポリゴンデータ（無ければ通常ルート）
 export const FLOOD_AVOID_URL = "./data/hazard-flood.geojson";
+
+// Auth0 (OIDC) の設定。
+//  - ここに書けば全利用者に適用。空ならログイン画面で入力（localStorageに保存）。
+//  - どちらも公開値なので commit しても問題ない（Client Secret は使わない=PKCE）。
+export const AUTH0_DOMAIN = "";
+export const AUTH0_CLIENT_ID = "";
