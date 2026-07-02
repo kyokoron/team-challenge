@@ -157,6 +157,16 @@ html, body {
   border-top: 1px dashed var(--line);
 }
 
+/* エリア対応状況グラフ */
+.hazard-chart { margin-top: 2px; }
+.hazard-chart svg { display: block; }
+.chart-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin: 10px 0 0;
+  line-height: 1.6;
+}
+
 /* ボタン類 */
 .primary-btn {
   width: 100%;

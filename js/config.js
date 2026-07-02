@@ -23,9 +23,9 @@ export const DEFAULT_ORS_KEY = "";
 export const SHELTERS_URL = "./data/shelters.geojson";
 export const SHELTERS_FALLBACK_URL = "./data/shelters.sample.geojson";
 
-// 初期表示位置（サンプルデータのある藤沢・鎌倉沿岸周辺）
-export const INITIAL_CENTER = [139.49, 35.32];
-export const INITIAL_ZOOM = 12;
+// 初期表示位置（実データの対象＝東京都港区周辺）
+export const INITIAL_CENTER = [139.7396, 35.6507];
+export const INITIAL_ZOOM = 13;
 
 // 徒歩速度（分あたりの距離。不動産表示の慣例 80m/分 を採用）
 export const WALK_METERS_PER_MIN = 80;
