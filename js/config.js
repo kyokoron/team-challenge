@@ -11,6 +11,13 @@ export const ELEVATION_API = "https://cyberjapandata2.gsi.go.jp/general/dem/scri
 // OpenRouteService 徒歩ルート（無料キーが必要）
 export const ORS_DIRECTIONS = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson";
 
+// 既定のORS APIキー（任意）。
+//  - 空文字のままなら、各利用者がUIからキーを入力する（推奨・安全）。
+//  - ここに自分のキーを書くと、公開デモで誰でもルート探索が使える。
+//    ※Publicリポジトリではキーが公開され不正利用される恐れがあるため、
+//      発表当日だけ入れる／使用後に無効化する等の運用を推奨。
+export const DEFAULT_ORS_KEY = "";
+
 // 避難所データ。実データ(shelters.geojson)を優先し、無ければサンプルにフォールバック。
 // tools/convert-shelters.mjs で国土数値情報から shelters.geojson を生成できる。
 export const SHELTERS_URL = "./data/shelters.geojson";

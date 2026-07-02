@@ -4,61 +4,73 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>災害時避難シミュレーター</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
   <div id="app">
-    <aside id="panel">
-      <header>
-        <h1>災害時避難シミュレーター</h1>
-        <p class="subtitle">ハザードを考慮した避難所・避難ルートの意思決定支援（参考情報）</p>
-      </header>
-
-      <section class="control">
-        <label class="control-label">災害の種類</label>
-        <div id="disaster-buttons" class="disaster-buttons">
-          <button data-disaster="earthquake" class="disaster-btn is-active">地震</button>
-          <button data-disaster="tsunami" class="disaster-btn">津波</button>
-          <button data-disaster="flood" class="disaster-btn">洪水</button>
-          <button data-disaster="landslide" class="disaster-btn">土砂災害</button>
+    <header id="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">🧭</span>
+        <div class="brand-text">
+          <h1>災害時避難シミュレーター</h1>
+          <p>ハザードを考慮して、避難所と避難ルートを提案します</p>
         </div>
-        <p id="hazard-note" class="hazard-note"></p>
-      </section>
+      </div>
+      <span class="topbar-note">参考情報 / 平常時の避難計画支援</span>
+    </header>
 
-      <section class="control">
-        <button id="locate-btn" class="primary-btn">📍 現在地を取得</button>
-        <p id="location-status" class="status-text">現在地は未取得です</p>
-      </section>
+    <div id="body">
+      <aside id="panel">
+        <section class="block">
+          <h2 class="block-title">災害の種類</h2>
+          <div id="disaster-buttons" class="disaster-buttons">
+            <button data-disaster="earthquake" class="disaster-btn is-active">地震</button>
+            <button data-disaster="tsunami" class="disaster-btn">津波</button>
+            <button data-disaster="flood" class="disaster-btn">洪水</button>
+            <button data-disaster="landslide" class="disaster-btn">土砂災害</button>
+          </div>
+          <p id="hazard-note" class="hazard-note"></p>
+        </section>
 
-      <section class="control">
-        <div class="section-head">
-          <label class="control-label">おすすめ避難所</label>
-          <span id="shelter-count" class="badge">-</span>
-        </div>
-        <ul id="shelter-list" class="shelter-list">
-          <li class="empty">現在地を取得すると、災害種別に応じた避難所を提案します。</li>
-        </ul>
-      </section>
+        <section class="block">
+          <button id="locate-btn" class="primary-btn">現在地から避難所をさがす</button>
+          <p id="location-status" class="status-text">現在地は未取得です</p>
+        </section>
 
-      <section class="control settings">
-        <details>
-          <summary>⚙ ルート探索の設定（OpenRouteService）</summary>
-          <p class="hint">避難ルート探索には OpenRouteService の無料APIキーが必要です。
-            <a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noopener">こちらで取得</a>し、下に貼り付けてください（ブラウザ内 localStorage に保存され、外部送信はルート計算時のORSのみ）。</p>
-          <input type="password" id="ors-key" placeholder="ORS API キー" />
-          <button id="save-key-btn" class="secondary-btn">キーを保存</button>
-          <p id="key-status" class="status-text"></p>
-        </details>
-      </section>
+        <section class="block">
+          <div class="block-head">
+            <h2 class="block-title">おすすめ避難所</h2>
+            <span id="shelter-count" class="badge">—</span>
+          </div>
+          <ul id="shelter-list" class="shelter-list">
+            <li class="empty">現在地を取得すると、災害種別に応じた避難所を近い順に提案します。</li>
+          </ul>
+        </section>
 
-      <footer class="disclaimer">
-        ⚠ 本アプリは平常時の学習・避難計画支援を目的とした参考情報です。実際の災害時は自治体・気象庁の最新情報と現地の状況に従ってください。ハザード表示は国土地理院／ハザードマップポータルのタイルを利用しています。
-      </footer>
-    </aside>
+        <section class="block settings">
+          <details>
+            <summary>ルート探索の設定（OpenRouteService）</summary>
+            <p class="hint">避難ルートの表示には OpenRouteService の無料APIキーが必要です。
+              <a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noopener">キーを取得</a>し、下に貼り付けてください。
+              キーはこの端末のブラウザ内にのみ保存され、ルート計算時にのみ OpenRouteService へ送信されます。</p>
+            <input type="password" id="ors-key" placeholder="ORS API キー" autocomplete="off" />
+            <button id="save-key-btn" class="secondary-btn">キーを保存</button>
+            <p id="key-status" class="status-text"></p>
+          </details>
+        </section>
 
-    <main id="map"></main>
-    <div id="legend" class="legend hidden"></div>
+        <footer class="disclaimer">
+          本アプリは平常時の学習・避難計画支援を目的とした<strong>参考情報</strong>です。実際の災害時は自治体・気象庁の最新情報と現地の状況に従ってください。ハザード表示は国土地理院／ハザードマップポータルのタイルを利用しています。
+        </footer>
+      </aside>
+
+      <div id="map-wrap">
+        <main id="map"></main>
+        <div id="legend" class="legend hidden"></div>
+      </div>
+    </div>
   </div>
 
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>

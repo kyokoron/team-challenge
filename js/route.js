@@ -1,9 +1,10 @@
-import { ORS_DIRECTIONS, FLOOD_AVOID_URL } from "./config.js";
+import { ORS_DIRECTIONS, FLOOD_AVOID_URL, DEFAULT_ORS_KEY } from "./config.js";
 
 const KEY_STORAGE = "ors_api_key";
 
+// UIで保存したキーを優先し、無ければ config の既定キーにフォールバック
 export function getApiKey() {
-  return localStorage.getItem(KEY_STORAGE) || "";
+  return localStorage.getItem(KEY_STORAGE) || DEFAULT_ORS_KEY || "";
 }
 export function setApiKey(key) {
   localStorage.setItem(KEY_STORAGE, key.trim());

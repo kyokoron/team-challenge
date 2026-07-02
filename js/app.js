@@ -188,10 +188,10 @@ function appendRouteHint(shelter, text, type = "info") {
   if (!hint) {
     hint = document.createElement("div");
     hint.className = "route-hint";
-    hint.style.cssText = "margin-top:8px;font-size:12px;padding-top:8px;border-top:1px dashed #334155;";
+    hint.style.cssText = "margin-top:12px;font-size:12.5px;padding-top:12px;border-top:1px dashed #e6eaee;font-weight:500;";
     card.appendChild(hint);
   }
-  hint.style.color = type === "good" ? "#4ade80" : type === "warn" ? "#f87171" : "#e5e7eb";
+  hint.style.color = type === "good" ? "#2f8f5b" : type === "warn" ? "#c2410c" : "#55636e";
   hint.textContent = "🧭 " + text;
 }
 

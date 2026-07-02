@@ -56,7 +56,7 @@ export function setCurrentLocation(lon, lat) {
   if (currentMarker) currentMarker.remove();
   const el = document.createElement("div");
   el.style.cssText =
-    "width:18px;height:18px;border-radius:50%;background:#38bdf8;border:3px solid #fff;box-shadow:0 0 0 4px rgba(56,189,248,.35)";
+    "width:18px;height:18px;border-radius:50%;background:#157a8c;border:3px solid #fff;box-shadow:0 0 0 4px rgba(21,122,140,.28)";
   currentMarker = new maplibregl.Marker({ element: el })
     .setLngLat([lon, lat])
     .setPopup(new maplibregl.Popup({ offset: 16 }).setHTML("<strong>現在地</strong>"))
@@ -76,7 +76,7 @@ export function setShelterMarkers(shelters, topIds, onClick) {
     el.style.cssText = `
       width:${isTop ? 26 : 18}px;height:${isTop ? 26 : 18}px;border-radius:50% 50% 50% 0;
       transform:rotate(-45deg);cursor:pointer;
-      background:${isTop ? "#0ea5e9" : "#64748b"};border:2px solid #fff;
+      background:${isTop ? "#157a8c" : "#9aa7b1"};border:2px solid #fff;
       display:flex;align-items:center;justify-content:center;`;
     if (isTop) {
       const num = document.createElement("span");
