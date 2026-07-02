@@ -11,8 +11,10 @@ export const ELEVATION_API = "https://cyberjapandata2.gsi.go.jp/general/dem/scri
 // OpenRouteService 徒歩ルート（無料キーが必要）
 export const ORS_DIRECTIONS = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson";
 
-// 避難所データ（本番は国土数値情報の実データに差し替え）
-export const SHELTERS_URL = "./data/shelters.sample.geojson";
+// 避難所データ。実データ(shelters.geojson)を優先し、無ければサンプルにフォールバック。
+// tools/convert-shelters.mjs で国土数値情報から shelters.geojson を生成できる。
+export const SHELTERS_URL = "./data/shelters.geojson";
+export const SHELTERS_FALLBACK_URL = "./data/shelters.sample.geojson";
 
 // 初期表示位置（サンプルデータのある藤沢・鎌倉沿岸周辺）
 export const INITIAL_CENTER = [139.49, 35.32];

@@ -1,5 +1,6 @@
 import {
   SHELTERS_URL,
+  SHELTERS_FALLBACK_URL,
   WALK_METERS_PER_MIN,
   TSUNAMI_SAFE_ELEVATION,
 } from "./config.js";
@@ -7,11 +8,15 @@ import { getElevation } from "./elevation.js";
 
 let cachedShelters = null;
 
-// 避難所GeoJSONを読み込む（初回のみfetch）
+// 避難所GeoJSONを読み込む（初回のみfetch）。
+// 実データ(SHELTERS_URL)が無ければサンプルにフォールバックする。
 export async function loadShelters() {
   if (cachedShelters) return cachedShelters;
-  const res = await fetch(SHELTERS_URL);
-  if (!res.ok) throw new Error(`避難所データの取得に失敗: HTTP ${res.status}`);
+  let res = await fetch(SHELTERS_URL).catch(() => null);
+  if (!res || !res.ok) {
+    res = await fetch(SHELTERS_FALLBACK_URL);
+    if (!res.ok) throw new Error(`避難所データの取得に失敗: HTTP ${res.status}`);
+  }
   const geojson = await res.json();
   cachedShelters = geojson.features.map((f, i) => ({
     id: i,
