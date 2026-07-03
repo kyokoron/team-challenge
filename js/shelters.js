@@ -1,24 +1,10 @@
-import {
-  SHELTERS_URL,
-  SHELTERS_FALLBACK_URL,
-  WALK_METERS_PER_MIN,
-  TSUNAMI_SAFE_ELEVATION,
-} from "./config.js";
+import { WALK_METERS_PER_MIN, TSUNAMI_SAFE_ELEVATION } from "./config.js";
 import { getElevation } from "./elevation.js";
 
-let cachedShelters = null;
-
-// 避難所GeoJSONを読み込む（初回のみfetch）。
-// 実データ(SHELTERS_URL)が無ければサンプルにフォールバックする。
-export async function loadShelters() {
-  if (cachedShelters) return cachedShelters;
-  let res = await fetch(SHELTERS_URL).catch(() => null);
-  if (!res || !res.ok) {
-    res = await fetch(SHELTERS_FALLBACK_URL);
-    if (!res.ok) throw new Error(`避難所データの取得に失敗: HTTP ${res.status}`);
-  }
-  const geojson = await res.json();
-  cachedShelters = geojson.features.map((f, i) => ({
+// GeoJSONのfeature配列を避難所オブジェクトに変換する。
+// データの取得元（地域ファイル/IndexedDB）は呼び出し側が用意する。
+export function makeShelters(features) {
+  return features.map((f, i) => ({
     id: i,
     name: f.properties.name,
     kind: f.properties.kind,
@@ -28,7 +14,6 @@ export async function loadShelters() {
     lon: f.geometry.coordinates[0],
     lat: f.geometry.coordinates[1],
   }));
-  return cachedShelters;
 }
 
 // 2点間の直線距離[m]（Haversine）
@@ -48,10 +33,9 @@ export function walkMinutes(meters) {
 }
 
 // 現在地・災害種別に応じて避難所をスコアリングし、上位を返す。
+// shelters は呼び出し側が渡す（現在地の地域＋保存済み地域など）。
 // 津波時は標高APIを叩いて高台を優先する。
-export async function rankShelters(origin, disasterKey, disasterCfg, limit = 3) {
-  const shelters = await loadShelters();
-
+export async function rankShelters(origin, disasterKey, disasterCfg, limit, shelters) {
   // 各避難所に距離・徒歩時間・災害対応可否を付与
   const enriched = shelters.map((s) => {
     const dist = distanceMeters(origin.lon, origin.lat, s.lon, s.lat);

@@ -3,7 +3,7 @@
 //  - 地図/ハザードタイル・CDN・フォント（別オリジン） … cache-first（一度見た近場は圏外でも表示）
 //  - ルート探索(OpenRouteService)はPOSTなので対象外＝常に通信（圏外では失敗しアプリ側で理由表示にフォールバック）
 
-const CACHE = "hinan-v3";
+const CACHE = "hinan-v4";
 
 // 初回インストール時に確実にキャッシュするアプリ本体
 const SHELL = [
@@ -16,10 +16,11 @@ const SHELL = [
   "./js/map.js",
   "./js/elevation.js",
   "./js/shelters.js",
+  "./js/regionstore.js",
   "./js/route.js",
   "./js/chart.js",
-  "./data/shelters.geojson",
-  "./data/shelters.sample.geojson",
+  "./data/regions/index.json",
+  "./data/regions/13.geojson",
   "./manifest.webmanifest",
   "./icon.svg",
 ];
