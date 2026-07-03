@@ -1,5 +1,15 @@
 import { DISASTERS } from "./config.js";
-import { loadShelters, rankShelters } from "./shelters.js";
+import { makeShelters, rankShelters } from "./shelters.js";
+import {
+  loadIndex,
+  resolveRegion,
+  fetchRegionFeatures,
+  saveRegion,
+  deleteRegion,
+  getSavedFeatures,
+  getSavedList,
+  getAllSavedFeatures,
+} from "./regionstore.js";
 import {
   initMap,
   setHazardLayers,
@@ -21,6 +31,7 @@ const state = {
   selectedId: null,
   counts: null, // {disasterKey: 対応施設数}
   total: 0,
+  activeShelters: [], // 現在表示・検索対象の地域の避難所
 };
 
 // DOM
@@ -38,6 +49,8 @@ const shelterCount = $("#shelter-count");
 const legend = $("#legend");
 const hazardChart = $("#hazard-chart");
 const statsTotal = $("#stats-total");
+const regionList = $("#region-list");
+const regionStatus = $("#region-status");
 const orsKeyInput = $("#ors-key");
 const saveKeyBtn = $("#save-key-btn");
 const keyStatus = $("#key-status");
@@ -46,13 +59,13 @@ export async function startApp() {
   await initMap();
   applyDisaster("earthquake");
 
-  // 避難所を読み込み、災害種別ごとの対応状況を集計してグラフ表示
-  const shelters = await loadShelters().catch((e) => {
-    alert(e.message);
-    return [];
-  });
-  computeCounts(shelters);
-  renderChart();
+  // 既定地域（indexの先頭＝東京）を表示用に読み込み、グラフ・マーカーを描画
+  await loadDefaultRegion();
+  await refreshRegionManager();
+
+  // オンライン/オフラインの切替を地域マネージャに反映
+  window.addEventListener("online", refreshRegionManager);
+  window.addEventListener("offline", refreshRegionManager);
 
   // 位置情報が使えない/拒否された環境向け: 地図クリックで現在地を指定
   onMapClick((lon, lat) => {
@@ -100,6 +113,108 @@ function computeCounts(shelters) {
   }
   state.counts = counts;
   state.total = shelters.length;
+}
+
+// 表示・検索対象の避難所を差し替え、グラフ/件数/マーカーを更新
+function setActiveShelters(features) {
+  state.activeShelters = makeShelters(features);
+  computeCounts(state.activeShelters);
+  renderChart();
+  refreshMarkers();
+}
+
+function refreshMarkers() {
+  const topIds = state.ranked.map((s) => s.id);
+  setShelterMarkers(state.activeShelters, topIds, (s) => selectShelter(s.id));
+}
+
+// 起動時の既定地域を表示（保存済みがあればそれ、無ければfetch）
+async function loadDefaultRegion() {
+  try {
+    const index = await loadIndex();
+    if (!index.length) return;
+    const def = index[0];
+    let feats = await getSavedFeatures(def.code).catch(() => null);
+    if (!feats) feats = await fetchRegionFeatures(def).catch(() => []);
+    setActiveShelters(feats);
+  } catch (e) {
+    console.warn("既定地域の読込に失敗:", e);
+  }
+}
+
+// 地点に対応する避難所データを用意する（オンラインは自動保存＝平常時に備える）
+async function ensureFeaturesForPoint(lon, lat) {
+  const index = await loadIndex().catch(() => []);
+  const region = resolveRegion(index, lon, lat);
+  const online = navigator.onLine;
+
+  if (region) {
+    const saved = await getSavedFeatures(region.code).catch(() => null);
+    if (saved) return { features: saved, note: `${region.name}（保存済み・オフライン利用可）` };
+    if (online) {
+      try {
+        const feats = await saveRegion(region); // 取得＋自動保存
+        await refreshRegionManager();
+        return { features: feats, note: `${region.name}を取得・保存しました（次回オフライン可）` };
+      } catch (e) {
+        const feats = await fetchRegionFeatures(region).catch(() => []);
+        return { features: feats, note: `${region.name}を取得しました（保存に失敗）` };
+      }
+    }
+    const all = await getAllSavedFeatures();
+    return { features: all, note: `オフライン：${region.name}は未保存。保存済み地域から検索します。` };
+  }
+
+  if (online) {
+    return { features: [], note: "この地点周辺の避難所データは未提供です（現在は東京都のみ）。" };
+  }
+  const all = await getAllSavedFeatures();
+  return { features: all, note: "オフライン：保存済み地域から検索します。" };
+}
+
+// オフライン地域マネージャの一覧を再描画
+async function refreshRegionManager() {
+  if (!regionList) return;
+  const index = await loadIndex().catch(() => []);
+  const saved = await getSavedList().catch(() => []);
+  const savedCodes = new Set(saved.map((s) => s.code));
+
+  regionList.innerHTML = index
+    .map((r) => {
+      const s = savedCodes.has(r.code);
+      return `<li class="region-item">
+        <div class="region-info">
+          <span class="region-name">${r.name}</span>
+          <span class="region-meta">${r.count}施設${s ? " ・ 📥保存済み(オフライン可)" : ""}</span>
+        </div>
+        <button class="region-btn ${s ? "is-saved" : ""}" data-code="${r.code}" data-act="${s ? "del" : "save"}">${s ? "削除" : "保存"}</button>
+      </li>`;
+    })
+    .join("");
+  regionList.querySelectorAll(".region-btn").forEach((b) => b.addEventListener("click", onRegionBtn));
+
+  if (regionStatus) {
+    regionStatus.textContent = navigator.onLine
+      ? "地域を保存すると、圏外でもその地域で検索できます（旅行前の保存に）。"
+      : "⚠ オフライン中：保存済み地域のみ利用できます。";
+  }
+}
+
+async function onRegionBtn(e) {
+  const btn = e.currentTarget;
+  const code = btn.dataset.code;
+  const act = btn.dataset.act;
+  btn.disabled = true;
+  btn.textContent = act === "save" ? "保存中…" : "削除中…";
+  try {
+    const index = await loadIndex();
+    const region = index.find((x) => x.code === code);
+    if (act === "save") await saveRegion(region);
+    else await deleteRegion(code);
+  } catch (err) {
+    alert("地域の保存/削除に失敗しました: " + err.message);
+  }
+  await refreshRegionManager();
 }
 
 function renderChart() {
@@ -191,12 +306,22 @@ async function updateRecommendations() {
   const cfg = DISASTERS[state.disaster];
   shelterList.innerHTML = `<li class="empty">避難所を評価中…</li>`;
 
-  const all = await loadShelters();
-  const ranked = await rankShelters(state.origin, state.disaster, cfg, 5);
+  // 地点に対応する地域データを用意（オンラインは自動保存）
+  const { features, note } = await ensureFeaturesForPoint(state.origin.lon, state.origin.lat);
+  if (regionStatus && note) regionStatus.textContent = note;
+  setActiveShelters(features);
+
+  if (!state.activeShelters.length) {
+    state.ranked = [];
+    shelterList.innerHTML = `<li class="empty">この地点周辺の避難所データがありません。左の「オフライン地域」で対象地域を保存するか、対応地域から試してください。</li>`;
+    shelterCount.textContent = "0件";
+    return;
+  }
+
+  const ranked = await rankShelters(state.origin, state.disaster, cfg, 5, state.activeShelters);
   state.ranked = ranked;
 
-  const topIds = ranked.map((s) => s.id);
-  setShelterMarkers(all, topIds, (s) => selectShelter(s.id));
+  refreshMarkers();
   renderShelterList(ranked);
   shelterCount.textContent = `${ranked.length}件`;
 

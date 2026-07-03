@@ -321,6 +321,41 @@ html, body {
 .shelter-card .reasons li.good { color: var(--good); }
 .shelter-card .reasons li.warn { color: var(--warn); }
 
+/* オフライン地域マネージャ */
+.region-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.region-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.region-info { display: flex; flex-direction: column; }
+.region-name { font-size: 14px; font-weight: 700; }
+.region-meta { font-size: 11.5px; color: var(--muted); }
+.region-btn {
+  min-height: 34px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.region-btn.is-saved {
+  background: var(--surface);
+  color: var(--warn);
+  border-color: var(--line);
+}
+.region-btn:disabled { opacity: .6; cursor: default; }
+
 /* 設定（details） */
 .settings summary {
   cursor: pointer;
