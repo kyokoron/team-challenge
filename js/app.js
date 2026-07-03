@@ -14,7 +14,8 @@ import {
   initMap,
   setHazardLayers,
   setCurrentLocation,
-  setShelterMarkers,
+  setShelterDots,
+  setTopMarkers,
   drawRoute,
   clearRoute,
   fitToRoute,
@@ -120,12 +121,12 @@ function setActiveShelters(features) {
   state.activeShelters = makeShelters(features);
   computeCounts(state.activeShelters);
   renderChart();
+  setShelterDots(state.activeShelters); // 全施設は軽量な円レイヤ
   refreshMarkers();
 }
 
 function refreshMarkers() {
-  const topIds = state.ranked.map((s) => s.id);
-  setShelterMarkers(state.activeShelters, topIds, (s) => selectShelter(s.id));
+  setTopMarkers(state.ranked, (s) => selectShelter(s.id)); // 上位のみ番号ピン
 }
 
 // 起動時の既定地域を表示（保存済みがあればそれ、無ければfetch）

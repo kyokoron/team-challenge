@@ -67,40 +67,75 @@ export function setCurrentLocation(lon, lat) {
   map.flyTo({ center: [lon, lat], zoom: 14 });
 }
 
-// 避難所マーカーを描画。上位はランク番号付きの強調マーカー。
-export function setShelterMarkers(shelters, topIds, onClick) {
+// Google検索/マップのリンク付きポップアップHTML
+function popupHtml(s) {
+  const q = encodeURIComponent(`${s.name} ${s.address || ""}`.trim());
+  const gmaps = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  const gsearch = `https://www.google.com/search?q=${q}`;
+  return (
+    `<strong>${s.name}</strong>` +
+    `<br>${s.kind || ""}` +
+    (s.minutes ? `<br>徒歩約${s.minutes}分` : "") +
+    (s.elevation != null ? `<br>標高 約${s.elevation}m` : "") +
+    `<div class="popup-links"><a href="${gmaps}" target="_blank" rel="noopener">Googleマップで開く</a>` +
+    `<a href="${gsearch}" target="_blank" rel="noopener">Google検索</a></div>`
+  );
+}
+
+// 地域内の全避難所を軽量な円レイヤで表示（数千点でも軽い）。クリックでGoogleリンク付きポップアップ。
+export function setShelterDots(shelters) {
+  const data = {
+    type: "FeatureCollection",
+    features: shelters.map((s) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [s.lon, s.lat] },
+      properties: { name: s.name, kind: s.kind || "", address: s.address || "" },
+    })),
+  };
+  if (map.getSource("shelter-dots")) {
+    map.getSource("shelter-dots").setData(data);
+    return;
+  }
+  map.addSource("shelter-dots", { type: "geojson", data });
+  map.addLayer({
+    id: "shelter-dots",
+    type: "circle",
+    source: "shelter-dots",
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 2.5, 14, 5],
+      "circle-color": "#9aa7b1",
+      "circle-stroke-color": "#ffffff",
+      "circle-stroke-width": 1.2,
+      "circle-opacity": 0.9,
+    },
+  });
+  map.on("click", "shelter-dots", (e) => {
+    const f = e.features[0];
+    new maplibregl.Popup({ offset: 12 })
+      .setLngLat(e.lngLat)
+      .setHTML(popupHtml(f.properties))
+      .addTo(map);
+  });
+  map.on("mouseenter", "shelter-dots", () => (map.getCanvas().style.cursor = "pointer"));
+  map.on("mouseleave", "shelter-dots", () => (map.getCanvas().style.cursor = ""));
+}
+
+// 上位候補だけ番号付きのピンで強調表示（少数なのでDOMマーカーでOK）。
+export function setTopMarkers(ranked, onClick) {
   shelterMarkers.forEach((m) => m.remove());
   shelterMarkers = [];
-
-  shelters.forEach((s) => {
-    const rank = topIds.indexOf(s.id);
-    const isTop = rank >= 0;
+  ranked.forEach((s, i) => {
     const el = document.createElement("div");
     el.style.cssText = `
-      width:${isTop ? 26 : 18}px;height:${isTop ? 26 : 18}px;border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);cursor:pointer;
-      background:${isTop ? "#157a8c" : "#9aa7b1"};border:2px solid #fff;
-      display:flex;align-items:center;justify-content:center;`;
-    if (isTop) {
-      const num = document.createElement("span");
-      num.textContent = String(rank + 1);
-      num.style.cssText = "transform:rotate(45deg);color:#fff;font-size:12px;font-weight:700;";
-      el.appendChild(num);
-    }
-    const q = encodeURIComponent(`${s.name} ${s.address || ""}`.trim());
-    const gmaps = `https://www.google.com/maps/search/?api=1&query=${q}`;
-    const gsearch = `https://www.google.com/search?q=${q}`;
-    const popup = new maplibregl.Popup({ offset: 20 }).setHTML(
-      `<strong>${s.name}</strong>` +
-        `<br>${s.kind || ""}` +
-        (s.minutes ? `<br>徒歩約${s.minutes}分` : "") +
-        (s.elevation != null ? `<br>標高 約${s.elevation}m` : "") +
-        `<div class="popup-links"><a href="${gmaps}" target="_blank" rel="noopener">Googleマップで開く</a>` +
-        `<a href="${gsearch}" target="_blank" rel="noopener">Google検索</a></div>`
-    );
+      width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);cursor:pointer;
+      background:#157a8c;border:2px solid #fff;display:flex;align-items:center;justify-content:center;`;
+    const num = document.createElement("span");
+    num.textContent = String(i + 1);
+    num.style.cssText = "transform:rotate(45deg);color:#fff;font-size:12px;font-weight:700;";
+    el.appendChild(num);
     const marker = new maplibregl.Marker({ element: el })
       .setLngLat([s.lon, s.lat])
-      .setPopup(popup)
+      .setPopup(new maplibregl.Popup({ offset: 20 }).setHTML(popupHtml(s)))
       .addTo(map);
     el.addEventListener("click", () => onClick && onClick(s));
     shelterMarkers.push(marker);
