@@ -477,17 +477,46 @@ html, body {
 
 /* ---------- レスポンシブ ---------- */
 @media (max-width: 820px) {
-  #topbar { padding: 14px 18px; }
-  .topbar-note { display: none; }
-  #body { flex-direction: column; }
+  /* モバイル：地図を上に大きく、操作は下のボトムシートに */
+  #app { height: 100vh; height: 100dvh; }
+  #topbar { padding: 10px 14px; }
+  .topbar-note, .brand-text p { display: none; } /* 副題・注記は隠して1行に */
+  .brand-text { border-left-width: 3px; padding-left: 10px; }
+  .brand-text h1 { font-size: 16px; }
+  .topbar-right { gap: 8px; }
+  .user-area { gap: 8px; }
+  .user-area #user-name { display: none; } /* 幅節約：タイトルを1行に収める */
+  .brand-text h1 { white-space: nowrap; }
+  .user-area .secondary-btn { min-height: 34px; padding: 6px 10px; font-size: 13px; }
+
+  #body { flex-direction: column-reverse; } /* 地図を上、パネルを下に */
+  #resizer { display: none; }
+
+  #map-wrap { flex: 1 1 auto; min-height: 0; padding: 0; }
+  #map { border-radius: 0; border: none; box-shadow: none; }
+
   #panel {
     width: 100% !important;
     min-width: 0;
-    max-height: 48vh;
-    padding: 18px;
+    flex: 0 0 auto;
+    max-height: 46dvh;
+    padding: 14px 16px 22px;
+    gap: 14px;
+    background: var(--surface);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -6px 20px rgba(20, 34, 44, .1);
+    -webkit-overflow-scrolling: touch;
   }
-  #resizer { display: none; }
-  #map-wrap { padding: 0 14px 14px; }
-  #map { box-shadow: var(--shadow-sm); }
-  .legend { bottom: 28px; right: 28px; }
+  /* 下シート先頭に“つまみ”を表示 */
+  #panel::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    margin: -4px auto 6px;
+  }
+  .block { padding: 14px; }
+  .legend { bottom: 12px; right: 12px; max-width: 200px; }
 }

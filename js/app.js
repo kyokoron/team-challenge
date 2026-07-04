@@ -94,6 +94,10 @@ export async function startApp() {
 
   setupResizer();
 
+  // 画面サイズ/向きの変化で地図を再計算（モバイルのURLバー・回転対策）
+  window.addEventListener("resize", () => resizeMap());
+  setTimeout(resizeMap, 300);
+
   // ルート探索キー
   if (hasApiKey()) {
     orsKeyInput.value = getApiKey();
@@ -251,11 +255,25 @@ function requestLocation() {
   navigator.geolocation.getCurrentPosition(
     (pos) => setOrigin(pos.coords.longitude, pos.coords.latitude, "現在地"),
     (err) => {
-      clickToSetEnabled = true;
-      locationStatus.textContent = `取得失敗: ${err.message}。地図をクリックして現在地を指定できます。`;
+      // 失敗時は「地図タップで指定」モードへ誘導
+      enablePickMode();
+      const byCode = {
+        1: "位置情報の利用が許可されていません。ブラウザ/端末の設定で許可するか、地図をタップして場所を指定してください。",
+        2: "現在地を取得できませんでした（電波状況など）。地図をタップして場所を指定してください。",
+        3: "現在地の取得がタイムアウトしました。もう一度お試しになるか、地図をタップして指定してください。",
+      };
+      locationStatus.textContent = byCode[err.code] || `取得失敗: ${err.message}。地図をタップして指定できます。`;
     },
-    { enableHighAccuracy: true, timeout: 10000 }
+    // 屋内でも速く・確実に取れるよう高精度は使わずタイムアウトを長めに
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
   );
+}
+
+// 「地図タップで場所を指定」モードのON/OFF
+function enablePickMode() {
+  clickToSetEnabled = true;
+  pickBtn.classList.add("is-active");
+  mapWrap.classList.add("picking");
 }
 
 // 位置情報が使えない環境では地図クリックで現在地を指定できるようにする
