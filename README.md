@@ -68,6 +68,18 @@ python3 -m http.server 8000
 4. `data/shelters.geojson` が無い場合は `data/shelters.sample.geojson` に自動フォールバック
 
 - 代替の実データ源：[国土数値情報](https://nlftp.mlit.go.jp/ksj/)、[G空間情報センター](https://www.geospatial.jp/ckan/dataset/hinanbasho)、各自治体オープンデータ
+
+## 洪水を避ける避難ルート（任意）
+
+`data/hazard-flood.geojson`（浸水想定区域のポリゴン）を置くと、**洪水・台風時のルート探索で浸水域を避けた経路**を提案します（OpenRouteService の `avoid_polygons`）。回避で経路が引けない場合は「垂直避難を検討」と警告します。ファイルが無い場合は通常の徒歩経路を表示し、その旨を明記します（＝安全と誤認させない）。
+
+1. [国土数値情報「洪水浸水想定区域」(A31 等)](https://nlftp.mlit.go.jp/ksj/) の GeoJSON を取得（Shapefileなら mapshaper で変換）
+2. 変換（属性除去・簡略化・範囲クリップ）：
+   ```bash
+   node tools/convert-flood.mjs <入力.geojson> data/hazard-flood.geojson 15 <minLon> <minLat> <maxLon> <maxLat>
+   ```
+   （ORSの `avoid_polygons` は面積・頂点数に上限があるため、**狭い範囲＋強めの簡略化**を推奨。アプリ側もルート周辺のポリゴンだけを送るよう制限しています）
+3. `data/hazard-flood.geojson` を置けば自動で回避が有効化します（ルート探索にはORSのAPIキーが必要）。
 - **洪水回避ポリゴン**（任意）: 国土数値情報「浸水想定区域」を GeoJSON 化し `data/hazard-flood.geojson` に配置すると、
   洪水時のルート探索で `avoid_polygons` として浸水域を回避します。
 
