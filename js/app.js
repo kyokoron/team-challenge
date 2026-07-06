@@ -392,11 +392,17 @@ async function selectShelter(id) {
     const route = await getRoute(state.origin, shelter, { avoid: cfg.avoid });
     drawRoute(route.geometry);
     fitToRoute(route.geometry);
-    const min = route.duration ? Math.round(route.duration / 60) : shelter.minutes;
     const km = route.distance ? (route.distance / 1000).toFixed(2) : null;
-    let msg = `実ルート: 徒歩約${min}分` + (km ? `（${km}km）` : "");
-    if (route.avoided) msg += " / 浸水想定区域を回避";
-    appendRouteHint(shelter, msg, route.avoided ? "good" : "info");
+    const min = route.duration ? Math.round(route.duration / 60) : null;
+    let msg = `実ルート: 徒歩約${min ?? "?"}分` + (km ? `（${km}km）` : "");
+    let type = "info";
+    if (route.avoided) {
+      msg += " ／ 浸水想定区域を回避";
+      type = "good";
+    } else {
+      msg += " ／ ※通常の徒歩経路です（危険区域の自動回避はしていません）";
+    }
+    appendRouteHint(shelter, msg, type);
   } catch (e) {
     const m = e.message === "NO_KEY" ? "APIキー未設定です。" : `ルート取得失敗: ${e.message}`;
     appendRouteHint(shelter, m, "warn");
