@@ -3,7 +3,7 @@
 //  - 地図/ハザードタイル・CDN・フォント（別オリジン） … cache-first（一度見た近場は圏外でも表示）
 //  - ルート探索(OpenRouteService)はPOSTなので対象外＝常に通信（圏外では失敗しアプリ側で理由表示にフォールバック）
 
-const CACHE = "hinan-v7";
+const CACHE = "hinan-v8";
 
 // 初回インストール時に確実にキャッシュするアプリ本体
 const SHELL = [

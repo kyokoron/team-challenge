@@ -397,14 +397,21 @@ async function selectShelter(id) {
     let msg = `実ルート: 徒歩約${min ?? "?"}分` + (km ? `（${km}km）` : "");
     let type = "info";
     if (route.avoided) {
-      msg += " ／ 浸水想定区域を回避";
+      msg += " ／ 浸水想定区域を回避した経路";
       type = "good";
+    } else if (route.avoidFailed) {
+      msg += " ／ ⚠ 危険区域の回避に失敗（通常経路を表示）。現地の状況を必ず確認してください";
+      type = "warn";
     } else {
       msg += " ／ ※通常の徒歩経路です（危険区域の自動回避はしていません）";
     }
     appendRouteHint(shelter, msg, type);
   } catch (e) {
-    const m = e.message === "NO_KEY" ? "APIキー未設定です。" : `ルート取得失敗: ${e.message}`;
+    let m;
+    if (e.message === "NO_KEY") m = "APIキー未設定のためルート線は表示されません。";
+    else if (e.message === "NO_SAFE_ROUTE")
+      m = "浸水を避ける安全な経路が見つかりません。近くの高い建物への垂直避難や、別の避難先を検討してください。";
+    else m = `ルート取得失敗: ${e.message}`;
     appendRouteHint(shelter, m, "warn");
   }
 }
