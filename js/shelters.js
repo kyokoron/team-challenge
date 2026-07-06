@@ -1,5 +1,8 @@
-import { WALK_METERS_PER_MIN, TSUNAMI_SAFE_ELEVATION } from "./config.js";
+import { TSUNAMI_SAFE_ELEVATION } from "./config.js";
 import { getElevation } from "./elevation.js";
+
+// 距離が広域データでも「近い順」を保証するため、まず最寄りK件に絞ってから評価する
+const NEAREST_K = 50;
 
 // GeoJSONのfeature配列を避難所オブジェクトに変換する。
 // データの取得元（地域ファイル/IndexedDB）は呼び出し側が用意する。
@@ -28,69 +31,68 @@ export function distanceMeters(lon1, lat1, lon2, lat2) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-export function walkMinutes(meters) {
-  return Math.max(1, Math.round(meters / WALK_METERS_PER_MIN));
-}
-
 // 現在地・災害種別に応じて避難所をスコアリングし、上位を返す。
-// shelters は呼び出し側が渡す（現在地の地域＋保存済み地域など）。
-// 津波時は標高APIを叩いて高台を優先する。
+// 安全方針：
+//  - その災害に「指定された」避難所のみを候補にする（無指定を勧めない）
+//  - まず最寄りK件に絞り、必ず"近い順"を保証してから評価する
+//  - 津波・高潮は標高で高台を優先。標高が取れないときは安全と断定しない。
 export async function rankShelters(origin, disasterKey, disasterCfg, limit, shelters) {
-  // 各避難所に距離・徒歩時間・災害対応可否を付与
-  const enriched = shelters.map((s) => {
-    const dist = distanceMeters(origin.lon, origin.lat, s.lon, s.lat);
-    return {
-      ...s,
-      distance: dist,
-      minutes: walkMinutes(dist),
-      supportsDisaster: s.disasters.includes(disasterKey),
-      elevation: null,
-    };
-  });
+  let pool = shelters.map((s) => ({
+    ...s,
+    distance: distanceMeters(origin.lon, origin.lat, s.lon, s.lat),
+    supportsDisaster: s.disasters.includes(disasterKey),
+    elevation: null,
+  }));
 
-  // 津波の場合のみ標高を取得（並列）
+  // この災害に指定された避難所だけを候補に（命に関わるため）。
+  // 万一その地域に指定が皆無なら、警告付きで全件から出す（黙って隠さない）。
+  const designated = pool.filter((s) => s.supportsDisaster);
+  const fellBack = designated.length === 0;
+  pool = fellBack ? pool : designated;
+
+  // 最寄りK件に絞る（広域データでも近い順を担保）
+  pool.sort((a, b) => a.distance - b.distance);
+  pool = pool.slice(0, NEAREST_K);
+
+  // 津波・高潮のみ、近傍K件だけ標高を取得
   if (disasterCfg.useElevation) {
-    await Promise.all(
-      enriched.map(async (s) => {
-        s.elevation = await getElevation(s.lon, s.lat);
-      })
-    );
+    await Promise.all(pool.map(async (s) => (s.elevation = await getElevation(s.lon, s.lat))));
   }
 
-  // スコア: 小さいほど良い。距離をベースに、対応災害・標高で補正。
-  const maxDist = Math.max(...enriched.map((s) => s.distance), 1);
-  enriched.forEach((s) => {
-    let score = s.distance / maxDist; // 0..1（近いほど小）
-    if (!s.supportsDisaster) score += 0.5; // 対応外はペナルティ
+  // スコアは「徒歩距離[m]換算」。小さいほど良い。標高で高台を優先。
+  pool.forEach((s) => {
+    let score = s.distance;
     if (disasterCfg.useElevation && s.elevation != null) {
-      // 標高が高いほど加点（津波）。10mを基準に -0.4〜0 程度で補正。
-      score -= Math.min(0.4, Math.max(0, s.elevation / 100));
-      if (s.elevation < TSUNAMI_SAFE_ELEVATION) score += 0.3; // 低地は減点
+      score -= Math.min(s.elevation, 30) * 30; // 高いほど優先（距離換算）
+      if (s.elevation < TSUNAMI_SAFE_ELEVATION) score += 1500; // 低地は大幅減点
     }
     s.score = score;
     s.reasons = buildReasons(s, disasterKey, disasterCfg);
   });
 
-  return enriched.sort((a, b) => a.score - b.score).slice(0, limit);
+  return pool.sort((a, b) => a.score - b.score).slice(0, limit);
 }
 
-// 推奨理由の文言を生成
+// 推奨理由の文言を生成（アイコンは表示側で付与）
 function buildReasons(s, disasterKey, cfg) {
   const reasons = [];
 
-  reasons.push({ type: "info", text: `徒歩約${s.minutes}分（約${Math.round(s.distance)}m）` });
+  // 直線距離であることを明示（徒歩時間は実ルートで別途表示）
+  reasons.push({ type: "info", text: `直線 約${Math.round(s.distance)}m（実際の道のりは異なります）` });
 
   if (s.supportsDisaster) {
-    reasons.push({ type: "good", text: `${cfg.label}の指定避難先に対応` });
+    reasons.push({ type: "good", text: `${cfg.label}の指定避難場所` });
   } else {
-    reasons.push({ type: "warn", text: `${cfg.label}への対応は未指定（要確認）` });
+    reasons.push({ type: "warn", text: `${cfg.label}の指定ではありません。安全か自治体情報で必ず確認を` });
   }
 
-  if (cfg.useElevation && s.elevation != null) {
-    if (s.elevation >= TSUNAMI_SAFE_ELEVATION) {
-      reasons.push({ type: "good", text: `標高 約${s.elevation}m（津波時に有利な高台）` });
+  if (cfg.useElevation) {
+    if (s.elevation == null) {
+      reasons.push({ type: "warn", text: "標高を取得できませんでした。高台かどうか現地で確認を" });
+    } else if (s.elevation >= TSUNAMI_SAFE_ELEVATION) {
+      reasons.push({ type: "good", text: `標高 約${s.elevation}m（高台）` });
     } else {
-      reasons.push({ type: "warn", text: `標高 約${s.elevation}m（低地。より高い場所を優先検討）` });
+      reasons.push({ type: "warn", text: `標高 約${s.elevation}m（低地。より高い場所を優先）` });
     }
   }
 

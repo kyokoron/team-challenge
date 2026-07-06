@@ -18,10 +18,8 @@ export const ORS_DIRECTIONS = "https://api.openrouteservice.org/v2/directions/fo
 //      発表当日だけ入れる／使用後に無効化する等の運用を推奨。
 export const DEFAULT_ORS_KEY = "";
 
-// 避難所データ。実データ(shelters.geojson)を優先し、無ければサンプルにフォールバック。
-// tools/convert-shelters.mjs で国土数値情報から shelters.geojson を生成できる。
-export const SHELTERS_URL = "./data/shelters.geojson";
-export const SHELTERS_FALLBACK_URL = "./data/shelters.sample.geojson";
+// 避難所データは data/regions/ 配下の地域ファイル（js/regionstore.js が管理）。
+// 誤案内防止のため、サンプル(架空)データへのフォールバックは廃止済み。
 
 // 初期表示位置（実データの対象＝東京都港区周辺）
 export const INITIAL_CENTER = [139.7396, 35.6507];
