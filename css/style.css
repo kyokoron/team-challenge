@@ -82,11 +82,42 @@ html, body {
   letter-spacing: .03em;
   white-space: nowrap;
 }
-.topbar-right { display: flex; align-items: center; gap: 14px; }
-.user-area { display: flex; align-items: center; gap: 10px; }
-.user-area.hidden { display: none; }
-.user-area #user-name { font-size: 13px; color: var(--ink-soft); font-weight: 500; }
-.user-area .secondary-btn { margin-top: 0; min-height: 36px; padding: 6px 12px; }
+/* 汎用ユーティリティ（class="hidden" を確実に隠す） */
+.hidden { display: none !important; }
+
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.user-area { display: flex; align-items: center; gap: 12px; }
+.user-area #user-name { font-size: 13px; color: var(--ink-soft); font-weight: 500; letter-spacing: .02em; }
+
+/* ヘッダーのログイン/ログアウト：高さ・書体を揃えて端正に */
+.topbar-right .secondary-btn {
+  margin-top: 0;
+  height: 38px;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--ink-soft);
+  transition: background .15s, border-color .15s, color .15s;
+}
+.topbar-right .secondary-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  background: var(--surface-soft);
+}
+/* ログインは主要アクションなので塗り */
+#login-btn-header {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+#login-btn-header:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+  color: #fff;
+}
 
 /* ログイン必須ゲート */
 .auth-gate {
