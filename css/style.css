@@ -1,22 +1,22 @@
 :root {
-  /* 落ち着いた・信頼感のある配色（深い藍緑＋温かみのある紙色） */
-  --bg: #eef0ee;            /* うっすら温かいペーパーグレー */
+  /* 上質な暖色ニュートラル＋深い藍緑アクセント */
+  --bg: #f4f3ef;            /* 温かみのある紙色 */
   --surface: #ffffff;
-  --surface-soft: #f7f8f7;
-  --ink: #16232b;           /* 深いインク */
-  --ink-soft: #47555f;
-  --muted: #8a959c;
-  --line: #e3e6e5;          /* ヘアライン */
-  --line-strong: #d3d8d7;
+  --surface-soft: #f7f6f2;
+  --ink: #1b1a16;           /* 温かいほぼ黒 */
+  --ink-soft: #4c4a44;
+  --muted: #928f87;
+  --line: #eae7e0;          /* 暖色ヘアライン */
+  --line-strong: #ddd8cf;
   --accent: #1c5b63;        /* 深い藍緑（落ち着いた防災色） */
   --accent-deep: #123f45;
-  --accent-tint: #e7efee;
+  --accent-tint: #e9efed;
   --good: #2c7a53;
   --good-tint: #e9f2ec;
   --warn: #b5470f;
   --warn-tint: #f8ede6;
-  --shadow-sm: 0 1px 2px rgba(18, 40, 44, .04);
-  --shadow-md: 0 6px 22px rgba(18, 40, 44, .07);
+  --shadow-sm: 0 1px 2px rgba(30, 28, 22, .04);
+  --shadow-md: 0 8px 28px rgba(30, 28, 22, .09);
   --radius: 12px;
   --radius-sm: 9px;
 }
@@ -170,21 +170,19 @@ html, body {
 
 #panel {
   width: 384px;
-  min-width: 384px;
-  background: var(--bg);
+  min-width: 320px;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
   overflow-y: auto;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 0;
 }
 
+/* パネルは「白いサイドバー＋区切り線のセクション」構成（フラットで洗練） */
 .block {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 20px 20px 22px;
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--line);
 }
+.block:last-of-type { border-bottom: none; }
 .block-head {
   display: flex;
   align-items: center;
@@ -214,10 +212,10 @@ html, body {
   letter-spacing: .02em;
 }
 
-/* 災害種別ボタン */
+/* 災害種別ボタン：パネル幅に応じて列数が自動で組み変わる */
 .disaster-buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
   gap: 10px;
 }
 .disaster-btn {
@@ -251,7 +249,7 @@ html, body {
 }
 
 /* エリア対応状況グラフ */
-.hazard-chart { margin-top: 2px; }
+.hazard-chart { margin-top: 2px; max-width: 440px; }
 .hazard-chart svg { display: block; }
 .chart-note {
   font-size: 11.5px;
@@ -464,10 +462,12 @@ html, body {
 .settings input:focus { outline: none; border-color: var(--accent); background: #fff; }
 
 .disclaimer {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--muted);
-  line-height: 1.8;
-  padding: 4px 4px 8px;
+  line-height: 1.85;
+  padding: 20px 24px 26px;
+  background: var(--surface-soft);
+  border-top: 1px solid var(--line);
 }
 .disclaimer strong { color: var(--ink-soft); }
 
@@ -578,11 +578,12 @@ html, body {
     min-width: 0;
     flex: 0 0 auto;
     max-height: 46dvh;
-    padding: 14px 16px 22px;
-    gap: 14px;
+    padding: 10px 0 0;
     background: var(--surface);
+    border-right: none;
+    border-top: 1px solid var(--line);
     border-radius: 18px 18px 0 0;
-    box-shadow: 0 -6px 20px rgba(20, 34, 44, .1);
+    box-shadow: 0 -6px 20px rgba(30, 28, 22, .1);
     -webkit-overflow-scrolling: touch;
   }
   /* 下シート先頭に“つまみ”を表示 */
@@ -592,9 +593,10 @@ html, body {
     width: 40px;
     height: 4px;
     border-radius: 2px;
-    background: var(--line);
-    margin: -4px auto 6px;
+    background: var(--line-strong);
+    margin: 0 auto 8px;
   }
-  .block { padding: 14px; }
+  .block { padding: 16px; }
+  .disclaimer { padding: 16px; }
   .legend { bottom: 12px; right: 12px; max-width: 200px; }
 }
