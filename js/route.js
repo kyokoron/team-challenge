@@ -55,6 +55,34 @@ function bboxIntersect(a, b) {
   return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
 }
 
+// 点が多角形（外周＋穴）の内側か（レイキャスティング）
+function pointInRing(pt, ring) {
+  const [x, y] = pt;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+function pointInPolygon(pt, rings) {
+  if (!pointInRing(pt, rings[0])) return false;
+  for (let k = 1; k < rings.length; k++) if (pointInRing(pt, rings[k])) return false; // 穴の中は外
+  return true;
+}
+
+// 現在地が浸水想定区域(data/hazard-flood.geojson)の内側かを判定
+export async function isInFloodZone(lon, lat) {
+  const polys = await loadFloodPolys();
+  if (!polys) return false;
+  for (const p of polys) {
+    const bb = p.bbox;
+    if (lon < bb[0] || lon > bb[2] || lat < bb[1] || lat > bb[3]) continue;
+    if (pointInPolygon([lon, lat], p.coordinates)) return true;
+  }
+  return false;
+}
+
 // ルートの起終点を含む矩形をpad[度]だけ広げる
 function routeBbox(start, end, pad) {
   return [

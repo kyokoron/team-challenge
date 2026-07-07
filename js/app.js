@@ -22,7 +22,7 @@ import {
   onMapClick,
   resizeMap,
 } from "./map.js";
-import { getRoute, getApiKey, setApiKey, hasApiKey } from "./route.js";
+import { getRoute, getApiKey, setApiKey, hasApiKey, isInFloodZone } from "./route.js";
 import { renderHazardChart } from "./chart.js";
 
 const state = {
@@ -190,7 +190,7 @@ async function refreshRegionManager() {
       return `<li class="region-item">
         <div class="region-info">
           <span class="region-name">${r.name}</span>
-          <span class="region-meta">${r.count}施設${s ? " ・ 📥保存済み(オフライン可)" : ""}</span>
+          <span class="region-meta">${r.count}施設${s ? " ・ 保存済み（オフライン可）" : ""}</span>
         </div>
         <button class="region-btn ${s ? "is-saved" : ""}" data-code="${r.code}" data-act="${s ? "del" : "save"}">${s ? "削除" : "保存"}</button>
       </li>`;
@@ -357,6 +357,17 @@ async function updateRecommendations() {
     clearAdvisory();
     if (ranked.length) selectShelter(ranked[0].id); // 最上位へのルートを自動描画
   }
+
+  // 最優先の警告：現在地そのものが浸水想定区域内なら最上部に表示
+  clearDanger();
+  if (cfg.avoid) {
+    const inZone = await isInFloodZone(state.origin.lon, state.origin.lat);
+    if (inZone) {
+      showDanger(
+        "現在地は浸水想定区域内です。ただちに浸水域の外、または近くの高い建物の上階（垂直避難）へ移動してください。"
+      );
+    }
+  }
 }
 
 // 避難所リストの先頭に注意バナーを表示/消去
@@ -370,6 +381,19 @@ function showAdvisory(text) {
 function clearAdvisory() {
   const a = shelterList.querySelector(".advisory");
   if (a) a.remove();
+}
+
+// 現在地が危険区域内のときの最優先バナー（リスト最上部）
+function showDanger(text) {
+  clearDanger();
+  const li = document.createElement("li");
+  li.className = "danger";
+  li.textContent = text;
+  shelterList.prepend(li);
+}
+function clearDanger() {
+  const d = shelterList.querySelector(".danger");
+  if (d) d.remove();
 }
 
 function renderShelterList(ranked) {
@@ -393,7 +417,7 @@ function renderShelterList(ranked) {
 }
 
 function iconFor(type) {
-  return type === "good" ? "✅" : type === "warn" ? "⚠️" : "•";
+  return type === "good" ? "✓" : type === "warn" ? "⚠" : "・";
 }
 
 async function selectShelter(id) {
@@ -451,8 +475,8 @@ function appendRouteHint(shelter, text, type = "info") {
     hint.style.cssText = "margin-top:12px;font-size:12.5px;padding-top:12px;border-top:1px dashed #e6eaee;font-weight:500;";
     card.appendChild(hint);
   }
-  hint.style.color = type === "good" ? "#2f8f5b" : type === "warn" ? "#c2410c" : "#55636e";
-  hint.textContent = "🧭 " + text;
+  hint.style.color = type === "good" ? "#2c7a53" : type === "warn" ? "#b5470f" : "#47555f";
+  hint.textContent = text;
 }
 
 // 起動は認証(js/auth.js)が成功したときに startApp() が呼ばれる。
