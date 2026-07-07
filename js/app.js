@@ -344,8 +344,32 @@ async function updateRecommendations() {
   renderShelterList(ranked);
   shelterCount.textContent = `${ranked.length}件`;
 
-  // 最上位へのルートを自動描画（キーがあれば）
-  if (ranked.length) selectShelter(ranked[0].id);
+  // 距離の健全性チェック：最寄りの指定避難所が遠すぎる＝この地点は対象区域外の可能性。
+  // 遠くへ（津波なら海側へ）誘導せず警告する。
+  const nearestKm = ranked.length ? ranked[0].distance / 1000 : Infinity;
+  if (ranked.length && cfg.localRangeKm && nearestKm > cfg.localRangeKm) {
+    const text =
+      cfg.advisory ||
+      `最寄りの${cfg.label}の指定避難場所が約${nearestKm.toFixed(1)}kmと離れています。この地点は${cfg.label}の対象区域外の可能性があります。自治体の情報も確認してください。`;
+    showAdvisory(text);
+    clearRoute(); // 危険方向への自動ルートは引かない
+  } else {
+    clearAdvisory();
+    if (ranked.length) selectShelter(ranked[0].id); // 最上位へのルートを自動描画
+  }
+}
+
+// 避難所リストの先頭に注意バナーを表示/消去
+function showAdvisory(text) {
+  clearAdvisory();
+  const li = document.createElement("li");
+  li.className = "advisory";
+  li.innerHTML = `⚠ ${text}`;
+  shelterList.prepend(li);
+}
+function clearAdvisory() {
+  const a = shelterList.querySelector(".advisory");
+  if (a) a.remove();
 }
 
 function renderShelterList(ranked) {
