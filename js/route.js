@@ -137,11 +137,22 @@ export async function getRoute(start, end, { avoid = false, _noAvoid = false } =
     }
   }
 
-  const res = await fetch(ORS_DIRECTIONS, {
-    method: "POST",
-    headers: { Authorization: key, "Content-Type": "application/json", Accept: "application/geo+json" },
-    body: JSON.stringify(body),
-  });
+  // 回線やAPIが無反応でも固まらないようタイムアウトする
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  let res;
+  try {
+    res = await fetch(ORS_DIRECTIONS, {
+      method: "POST",
+      headers: { Authorization: key, "Content-Type": "application/json", Accept: "application/geo+json" },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+  } catch (e) {
+    throw new Error(e.name === "AbortError" ? "TIMEOUT" : `通信エラー: ${e.message}`);
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!res.ok) {
     const detail = await res.text().catch(() => "");

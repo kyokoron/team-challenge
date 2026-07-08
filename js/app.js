@@ -436,6 +436,7 @@ async function selectShelter(id) {
     return;
   }
 
+  appendRouteHint(shelter, "ルートを計算中…", "info");
   try {
     const route = await getRoute(state.origin, shelter, { avoid: cfg.avoid });
     drawRoute(route.geometry);
@@ -459,6 +460,8 @@ async function selectShelter(id) {
     if (e.message === "NO_KEY") m = "APIキー未設定のためルート線は表示されません。";
     else if (e.message === "NO_SAFE_ROUTE")
       m = "浸水を避ける安全な経路が見つかりません。近くの高い建物への垂直避難や、別の避難先を検討してください。";
+    else if (e.message === "TIMEOUT")
+      m = "ルート探索がタイムアウトしました（回線やAPI制限の可能性）。時間をおいて再試行してください。避難所の場所は地図に表示中です。";
     else m = `ルート取得失敗: ${e.message}`;
     appendRouteHint(shelter, m, "warn");
   }
