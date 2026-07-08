@@ -36,6 +36,11 @@ section::after { color: #a49f95; font-size: 15px; }
 .flow .n { background:#fff; border:1.5px solid #cdddda; border-radius:10px; padding:12px 16px; font-size:.82em; text-align:center; }
 .flow .a { color:#8aa; font-size:20px; }
 .verdict { background:#e9f2ec; border:1px solid #cbe3d5; border-radius:10px; padding:10px 16px; margin-top:14px; color:#1f6b46; font-weight:600; }
+.chain { display:flex; flex-direction:column; gap:5px; margin:8px 0; align-items:stretch; }
+.chain span { background:#fff; border:1.5px solid #cdddda; border-radius:8px; padding:7px 10px; font-size:.8em; text-align:center; }
+.chain .ar { border:none; background:none; color:#93a6a4; padding:0; font-size:.78em; }
+.vc { background:#123f45; color:#fff; border-radius:8px; padding:9px 12px; margin-top:8px; font-weight:600; font-size:.86em; }
+.vc.old { background:#e9efed; color:#123f45; border:1px solid #cdddda; }
 section.title { background: #123f45; color: #fff; justify-content: center; }
 section.title h1 { color: #fff; font-size: 44px; margin-bottom:.1em; }
 section.title h3 { color: #bcd3cf; font-weight: 500; }
@@ -210,6 +215,57 @@ Kyoko Takazawa
 | 定型実装・リファクタ | 「この挙動おかしい」の指摘 | レビューを怠ると事故 |
 
 <p class="lead">前述の"危うさ"は全て、私が触って指摘して直した。<b>速度はAI、判断とレビューは人</b>。</p>
+
+---
+
+## AI時代、プロダクトの「価値の中心」が動く
+
+<div class="cols">
+<div>
+
+<h3>従来</h3>
+<div class="chain"><span>ユーザー</span><span class="ar">↓ UIを操作</span><span>UI（アプリ）</span><span class="ar">↓</span><span>機能（ロジック）</span><span class="ar">↓</span><span>データ</span></div>
+<div class="vc old">価値の中心：UI設計・機能開発・実装</div>
+
+</div>
+<div>
+
+<h3>AI時代</h3>
+<div class="chain"><span>ユーザー</span><span class="ar">↓ 目的を伝える</span><span>AI（理解・推論）</span><span class="ar">↓</span><span>データ</span></div>
+<div class="vc">価値の中心：① ドメイン理解　② 良いデータ　③ 何を解くべきか</div>
+
+</div>
+</div>
+
+<p class="lead" style="margin-top:16px">コードを書くことよりも、<b>「何を解くべきか」</b>の方が重要になる。</p>
+
+---
+
+## 今回、私の「価値の中心」も そこだった
+
+図の3つは、まさに**今回の私が握っていた部分**だった。
+
+<div class="grid2">
+<div class="box accent"><b>① ドメイン理解</b>防災の安全要件。「津波で海へ誘導」の危うさに気づけたのは、コードではなく人の理解</div>
+<div class="box accent"><b>② 良いデータ</b>国のオープンデータを"使える形"に整える前処理が、品質を大きく左右した</div>
+<div class="box accent"><b>③ 何を解くべきか</b>「動く」より「間違えない」。問いを立て直し、レビューし続けた</div>
+<div class="box good"><b>＝ 実装の速さはAIに任せ</b>私はこの3つに集中していた（と、後から気づいた）</div>
+</div>
+
+---
+
+## 余談：この資料も Markdown（Marp）で作った
+
+- スライドを **文章（テキスト）で書く** ツール。図を並べる代わりに、構造を文字で書く
+- なぜ AI 時代に相性がいい？
+  - **AIが読める・書ける・直せる** ―「ここ直して」で即反映（この資料が現にそう）
+  - **Git で差分管理** できる＝スライドをコードと同じように扱える
+  - **中身とデザインが分離**（テーマは固定、中身だけ高速に直せる）
+- パワポのように1枚ずつ手で整えるより、**中身の議論に集中**できた
+
+<div class="box accent">
+所感：AI時代は「テキストで伝える → AIが形にする」が中心。<b>スライドもテキストで持てるMarpは、その波に乗りやすい</b>。ただし作り込んだビジュアル勝負なら、Canvaや従来ツールが今も有利。
+</div>
 
 ---
 
