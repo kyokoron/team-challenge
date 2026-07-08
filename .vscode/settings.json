@@ -1,0 +1,4 @@
+{
+  "//": "Marp for VS Code のプレビューで生HTML(div/box/構成図など)を描画する設定",
+  "markdown.marp.enableHtml": true
+}
