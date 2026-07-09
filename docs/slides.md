@@ -7,8 +7,11 @@ title: AIで防災アプリを作ってみて — 課題の取り組みと、感
 <style>
 section {
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans JP", sans-serif;
-  background: #fbfaf7; color: #1b1a16; font-size: 24px; padding: 50px 60px; line-height: 1.55;
+  background: #fbfaf7; color: #1b1a16; font-size: 24px; padding: 56px 60px; line-height: 1.55;
+  display: flex; flex-direction: column; justify-content: flex-start;
 }
+section > *:first-child { margin-top: 0; }
+section > h2:first-child { margin-bottom: .6em; }
 h1 { color: #123f45; font-size: 38px; }
 h2 { color: #123f45; border-bottom: 3px solid #1c5b63; padding-bottom: .16em; font-size: 29px; margin-bottom: .5em; }
 h3 { color: #1c5b63; font-size: 21px; margin: .1em 0 .3em; }
@@ -27,7 +30,8 @@ section::after { color: #a49f95; font-size: 15px; }
 .lead { font-size: 1.14em; color: #123f45; font-weight: 600; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
 .box { border-radius: 10px; padding: 14px 18px; font-size: .92em; }
-.box b { display:block; margin-bottom: 3px; }
+.box > b { display:block; margin-bottom: 3px; }
+.box strong, .box b { color: inherit; }
 .box.warn { background: #f8ede6; border: 1px solid #eecebb; color: #8f3d10; }
 .box.good { background: #e9f2ec; border: 1px solid #cbe3d5; color: #1f6b46; }
 .box.accent { background: #e9efed; border: 1px solid #cdddda; color: #123f45; }
@@ -37,8 +41,11 @@ section::after { color: #a49f95; font-size: 15px; }
 .chain { display:flex; flex-direction:column; gap:5px; margin:8px 0; align-items:stretch; }
 .chain span { background:#fff; border:1.5px solid #cdddda; border-radius:8px; padding:7px 10px; font-size:.8em; text-align:center; }
 .chain .ar { border:none; background:none; color:#93a6a4; padding:0; font-size:.78em; }
-.vc { background:#123f45; color:#fff; border-radius:8px; padding:9px 12px; margin-top:8px; font-weight:600; font-size:.86em; }
+.vc { background:#123f45; color:#fff; border-radius:8px; padding:9px 12px; margin-top:10px; font-weight:600; font-size:.84em; }
 .vc.old { background:#e9efed; color:#123f45; border:1px solid #cdddda; }
+.cols.vcols { align-items: stretch; }
+.vcols > div { display:flex; flex-direction:column; }
+.vcols .vc { margin-top:auto; }
 section.title { background: #123f45; color: #fff; justify-content: center; }
 section.title h1 { color: #fff; font-size: 44px; margin-bottom:.1em; }
 section.title h3 { color: #bcd3cf; font-weight: 500; }
@@ -89,7 +96,7 @@ Kyoko Takazawa
 - 「正解はない」課題 → **何を作るかから自分で決める**
 
 <div class="box accent" style="margin-top:16px">
-だから本発表も「これが正解」ではなく、<b>一つのやってみた記録と感想</b>として聞いてください。
+だから本発表も「これが正解」ではなく、<strong>一つのやってみた記録と感想</strong>として聞いてください。
 </div>
 
 ---
@@ -152,20 +159,19 @@ Kyoko Takazawa
 | **Git管理** | GitHub でブランチ運用・履歴管理・レビュー |
 
 <div class="box accent" style="margin-top:14px">
-サーバを持たない静的サイトでも、要件（認証・HTTPS）は<b>外部サービスの組み合わせで満たせた</b>。
+サーバを持たない静的サイトでも、要件（認証・HTTPS）は<strong>外部サービスの組み合わせで満たせた</strong>。
 </div>
 
 ---
 
 ## ④ 成果物：災害時避難シミュレーター
 
-![bg right:36%](img/shelters.png)
 
 - 災害種別（地震／津波／台風／洪水／土砂）で **提案が変わる**
 - 危険区域（浸水域）を **避けるルート**
 - **オフライン**でも一度見た地域は検索できる
 
-🔗 https://kyokoron.github.io/team-challenge/
+**公開URL** https://kyokoron.github.io/team-challenge/
 
 <div class="box accent">
 機能・技術の詳細は付録に。ここからが本題の「感じたこと」です。
@@ -186,7 +192,7 @@ Kyoko Takazawa
 - 深掘りすると論点は複数（検索性能・県境・更新・**オフライン**・コスト…）
 
 <div class="box accent">
-結論：この防災アプリは<被災時に通信が落ちる前提。<br>サーバDBは"必要な瞬間に頼れない"ので、静的＋端末保存が理にかなう。
+結論：この防災アプリは<strong>被災時に通信が落ちる</strong>前提。サーバDBは"必要な瞬間に頼れない"ので、静的＋端末保存が理にかなう。
 </div>
 
 > AIは"それらしい答え"を速く出す。**問い直すと精度が上がる**。
@@ -210,11 +216,10 @@ Kyoko Takazawa
 
 ## 感じたこと（2つづき）安全側に倒すまで直した
 
-![bg right:34%](img/danger.png)
 
 - 対象外の地点は遠くへ誘導せず **「垂直避難を」と警告**
 - **偽データを完全排除**（取れなければ正直に止める）
-- **現在地が浸水域内なら最優先で警告**（右図）
+- **現在地が浸水域内なら最優先で警告**
 - できないこと（危険の完全自動回避は不可 等）も **明示**
 
 > "動く"を作れるのはAI。**"間違えない"を問い続けるのは人**だと痛感した。
@@ -231,14 +236,14 @@ Kyoko Takazawa
   - ルートAPI(ORS)は **回避ポリゴンに上限**があり工夫が必要
 
 <div class="box good">
-「データはある」と「すぐ使える」は別物。<b>整形・前処理が実装と同じくらい重い</b>と実感。
+「データはある」と「すぐ使える」は別物。<strong>整形・前処理が実装と同じくらい重い</strong>と実感。
 </div>
 
 ---
 
 ## 感じたこと（4）AI時代、価値の中心が動く
 
-<div class="cols">
+<div class="cols vcols">
 <div>
 
 <h3>従来</h3>
@@ -250,7 +255,7 @@ Kyoko Takazawa
 
 <h3>AI時代</h3>
 <div class="chain"><span>ユーザー</span><span class="ar">↓ 目的を伝える</span><span>AI（理解・推論）</span><span class="ar">↓</span><span>データ</span></div>
-<div class="vc">価値の中心：① ドメイン理解　② 良いデータ　③ 何を解くべきか</div>
+<div class="vc">価値の中心：①ドメイン理解／②良いデータ／③何を解くべきか</div>
 
 </div>
 </div>
@@ -279,7 +284,7 @@ Kyoko Takazawa
   - **中身とデザインが分離**（テーマ固定 → 中身だけ高速に直せる）
 
 <div class="box accent">
-「テキストで伝える → AIが形にする」時代に、<b>スライドもテキストで持てるMarpは相性が良い</b>。ただし作り込んだビジュアル勝負なら、Canvaや従来ツールが今も有利。
+「テキストで伝える → AIが形にする」時代に、<strong>スライドもテキストで持てるMarpは相性が良い</strong>。ただし作り込んだビジュアル勝負なら、Canvaや従来ツールが今も有利。
 </div>
 
 ---
@@ -307,7 +312,7 @@ Anthropic（Claudeの開発元）も、AI活用のコツとして近いことを
 - 「見た目が微妙」を直すのが難しい（**"良い"の言語化**が難しく作り直し多数）
 
 <div class="box accent">
-失敗の多くは「動かして初めて分かる」もの。<b>触る→気づく→直す</b>の反復が結局いちばん効いた。
+失敗の多くは「動かして初めて分かる」もの。<strong>触る→気づく→直す</strong>の反復が結局いちばん効いた。
 </div>
 
 ---
@@ -353,4 +358,4 @@ Anthropic（Claudeの開発元）も、AI活用のコツとして近いことを
 </div>
 </div>
 
-🔗 https://kyokoron.github.io/team-challenge/
+**公開URL** https://kyokoron.github.io/team-challenge/
