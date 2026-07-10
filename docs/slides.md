@@ -1,7 +1,7 @@
 ---
 marp: true
 paginate: true
-title: AIで防災アプリを作ってみて
+title: AIを使った開発の知見共有
 ---
 
 <style>
@@ -27,6 +27,7 @@ section::after { color: #b3aea4; font-size: 15px; }
 .cols { display: flex; gap: 40px; align-items: flex-start; margin-top: .3em; }
 .cols > div { flex: 1; }
 .note { color: #6b6862; font-size: .82em; margin-top: 1.2em; }
+.lead { color: #123f45; font-weight: 700; font-size: 1.05em; margin: 0 0 .3em; }
 .chain { display:flex; flex-direction:column; gap:5px; margin:6px 0; align-items:stretch; }
 .chain span { background:#f4f6f5; border:1px solid #cdddda; border-radius:6px; padding:7px 10px; font-size:.72em; text-align:center; }
 .chain .ar { border:none; background:none; color:#93a6a4; padding:0; font-size:.68em; }
@@ -36,16 +37,16 @@ section::after { color: #b3aea4; font-size: 15px; }
 .vcols > div { display:flex; flex-direction:column; }
 .vcols .vc { margin-top:auto; }
 section.title { background: #123f45; color: #fff; justify-content: center; }
-section.title h1 { color: #fff; font-size: 44px; margin-bottom:.15em; }
+section.title h1 { color: #fff; font-size: 42px; margin-bottom:.15em; }
 section.title h3 { color: #bcd3cf; font-weight: 500; }
 section.title hr { border:none; border-top:1px solid #3a6d72; width:70px; margin:22px 0; }
 </style>
 
 <!-- _class: title -->
 
-# AIで防災アプリを作ってみて
+# AIを使った開発の知見共有
 
-### 開発を通して学んだこと
+### 防災アプリの制作を題材に
 
 <hr>
 
@@ -54,77 +55,70 @@ Kyoko Takazawa
 
 ---
 
-## 目次
+## この発表について
 
-1. 課題と要件
-2. 作ったもの
-3. 開発方法
-4. 学んだこと
-5. まとめ
-
----
-
-## 課題と要件
-
-- 課題1：アプリケーションを一つ、自分で作る
-- 必須要件：**HTTPS ／ OIDC認証 ／ Git管理**
-- テーマは自由。何を作るかも自分で決める
+- テーマは、**AIを使った開発で得た知見の共有**
+- 作った防災アプリは、その **題材**（成果物の紹介が目的ではない）
+- 進め方
+  - 題材の紹介 → 開発の進め方 → 知見①〜④ → まとめ
 
 ---
 
-## 作ったもの：災害時避難シミュレーター
+## 題材：作ったアプリ
 
 - 災害時に、避難所と避難ルートを提案する Web アプリ
-- 災害種別（地震・津波・台風・洪水・土砂）で提案が変わる
-- 危険な浸水区域を避けるルート、オフライン対応
+- 災害種別で提案が変わる／危険区域を避けるルート／オフライン対応
+- 課題の必須要件（HTTPS・OIDC認証・Git管理）も充足
 - 公開URL：https://kyokoron.github.io/team-challenge/
 
----
-
-## 開発方法
-
-- AI（Claude Code）と対話しながら開発
-- コード作成は AI、要件定義・レビュー・判断は自分が担当
-- 構成：GitHub の静的サイト（サーバー・DB なし）、認証は Auth0（OIDC）
-- 開発から公開まで、すべてブラウザで完結
+<p class="note">数時間で制作。以降は、この制作を通して得た知見を共有する。</p>
 
 ---
 
-## 学んだこと① AIの出力は検証が必要
+## 開発の進め方
 
-- AI は、もっともらしい回答を即座に出す
+- AI（Claude Code）と **対話しながら** 開発
+- **コード作成は AI、要件定義・レビュー・判断は人** が担当
+- 環境構築は不要。ブラウザ版の VS Code で作業し、GitHub の静的サイトとして公開
+- 個人でも、サーバー・費用なしで開発から公開まで完結できる
+
+---
+
+## 知見① AIの出力は「検証前提」で使う
+
+- AI は、もっともらしい回答を即座に出す。ただし誤りも混ざる
 - 例：「DB が必要なのは投稿・更新のときだけ」と断定
   → 問い直すと、オフライン対応・更新頻度・コストなど論点は多かった
-- 出力を鵜呑みにせず、**検証と問い直し**が欠かせない
+- **重要な判断ほど「本当にそうか」と問い返す**。鵜呑みにしない
 
 ---
 
-## 学んだこと②「動く」と「正しい」は別
+## 知見②「動く」と「正しい」は別物
 
 動作はするが、誤った挙動が複数あった。
 
-- 内陸で「津波」を選ぶと、海側へ誘導していた（避難所が沿岸に偏るため）
+- 内陸で「津波」を選ぶと、海側へ誘導していた
 - データ取得に失敗すると、実在しない避難所を表示していた
 - 広域データで距離計算が狂い、最寄り順が崩れていた
 - 直線距離を、そのまま所要時間として表示していた
 
-<p class="note">危険時は垂直避難を促す、不正なデータは表示しない、など安全側へ修正した。</p>
+<p class="note">一見きちんと動いて見える。動作確認だけでは危うく、要件・安全面のレビューが要る。</p>
 
 ---
 
-## 学んだこと③ データ整備に手間がかかる
+## 知見③ データ整備がボトルネックになりやすい
 
-- 避難所・ハザード情報は、国のオープンデータで揃う（無料）
-- ただし実際に使うには課題があった
+- コード生成は速い。一方で、データを「使える形」にする作業は残る
+- オープンデータ特有の課題
   - どれが正解のデータか分かりにくい
-  - 洪水浸水想定は河川単位で分割されている
+  - ファイルが単位ごとに分割されている（例：洪水想定は河川単位）
   - 古い形式（Shapefile）で、変換・整形が必要
 
-<p class="note">使える形に整える前処理に、実装と同程度の時間がかかった。</p>
+<p class="note">データ整備の工数を最初から見込む。整形自体は AI にも任せられる。</p>
 
 ---
 
-## 学んだこと④ AI時代、価値の重心が移る
+## 知見④ 人の役割は「実装」から「判断」へ
 
 <div class="cols vcols">
 <div>
@@ -143,15 +137,16 @@ Kyoko Takazawa
 </div>
 </div>
 
-<p class="note">実装の速さは AI に任せられる。人が担うのは、ドメイン理解・データ整備・課題設定。</p>
+<p class="note">実装の速さは AI に任せられる。人が担うのは、ドメイン理解・課題設定・レビュー。</p>
 
 ---
 
-## まとめ
+## まとめ：AI活用の勘所
 
 - AI により、開発の速度は大きく向上する
-- 一方で、正しさ・安全性の判断は人が担う必要がある
-- 作ること以上に、「何を・正しく作るか」を見極めることが重要だと感じた
+- ただし出力は **検証前提**。品質・安全・最終判断は人が担う
+- データ整備・課題設定など、**人が担う工程の比重が増す**
+- 「作る」こと以上に、「何を・正しく作るか」を決める力が重要になる
 
 ---
 
