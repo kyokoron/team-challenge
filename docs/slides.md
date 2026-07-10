@@ -8,21 +8,20 @@ title: AIで防災アプリを作ってみて
 section {
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans JP", sans-serif;
   background: #fbfaf7; color: #1b1a16; font-size: 25px; padding: 58px 64px; line-height: 1.6;
-  display: flex; flex-direction: column; justify-content: flex-start;
+  display: flex; flex-direction: column; justify-content: center;
 }
-section > *:first-child { margin-top: 0; }
 h1 { color: #123f45; font-size: 38px; }
 h2 { color: #123f45; border-bottom: 3px solid #1c5b63; padding-bottom: .16em; font-size: 30px; margin: 0 0 .7em; }
 h3 { color: #1c5b63; font-size: 21px; margin: .1em 0 .3em; }
 strong { color: #0e3a40; font-weight: 700; }
 a { color: #1c5b63; }
-ul { margin: .2em 0; }
-li { margin: .34em 0; }
+ul, ol { margin: .2em 0; }
+li { margin: .4em 0; }
 code { background: #eef1f0; padding: 1px 6px; border-radius: 4px; font-size: .9em; }
 table { font-size: .82em; border-collapse: collapse; }
 th { background: #123f45; color: #fff; }
 td, th { border: 1px solid #d8d4cc; padding: 6px 10px; }
-blockquote { border-left: 4px solid #1c5b63; color: #3c3a34; padding: .2em 0 .2em .8em; font-size: 1.02em; margin-top: .8em; }
+blockquote { border-left: 4px solid #1c5b63; color: #3c3a34; padding: .2em 0 .2em .8em; font-size: 1.0em; margin-top: .8em; }
 small { color: #6b6862; }
 section::after { color: #a49f95; font-size: 15px; }
 .cols { display: flex; gap: 34px; align-items: flex-start; }
@@ -45,17 +44,15 @@ section::after { color: #a49f95; font-size: 15px; }
 .cols.vcols { align-items: stretch; }
 .vcols > div { display:flex; flex-direction:column; }
 .vcols .vc { margin-top:auto; }
-/* 大きな一言メッセージ用スライド */
-section.msg { justify-content: center; }
-.punch { font-size: 40px; color: #123f45; font-weight: 700; line-height: 1.55; margin: 0; }
-.punch.s { font-size: 33px; }
-.sub { font-size: 21px; color: #6b6862; margin-top: 24px; }
+.punch { font-size: 38px; color: #123f45; font-weight: 700; line-height: 1.55; margin: 0; }
+.punch.s { font-size: 31px; }
+.sub { font-size: 21px; color: #6b6862; margin-top: 22px; }
 .mk { background: linear-gradient(transparent 60%, #bfe0d8 60%); padding: 0 .06em; }
-section.title { background: #123f45; color: #fff; justify-content: center; }
+section.title { background: #123f45; color: #fff; }
 section.title h1 { color: #fff; font-size: 46px; margin-bottom:.1em; }
 section.title h3 { color: #bcd3cf; font-weight: 500; }
 section.title hr { border:none; border-top:2px solid #2f6b71; width:80px; margin:24px 0; }
-section.section { background: #123f45; color: #fff; justify-content: center; }
+section.section { background: #123f45; color: #fff; }
 section.section h2 { color:#fff; border:none; font-size:40px; margin:0; }
 section.section p { color:#bcd3cf; margin-top:.4em; }
 </style>
@@ -75,39 +72,32 @@ Kyoko Takazawa
 
 <!-- _class: msg -->
 
-<p class="punch">AIを使うと、作るのは<span class="mk">驚くほど速い</span>。<br>でも「これで正しいか」の判断は、<br>最後まで<span class="mk">自分の仕事</span>だった。</p>
+<p class="punch s">作ってみて、いちばん感じたこと。<br>AIは、驚くほど速い。<br>でも「これで正しい？」を確かめるのは、<br>最後まで自分の役目だった。</p>
 
-<p class="sub">— 防災アプリを一つ作って、いちばん感じたこと</p>
-
----
-
-## この発表で話すこと
-
-- 作ったものの説明は、簡単に
-- 中心は、作ってみて **気づいたこと・考えたこと**
-
-<blockquote>「正解のない」課題です。ひとつの体験談として聞いてください。</blockquote>
+<p class="sub">— 防災アプリを一つ作ってみて</p>
 
 ---
 
-## 課題：アプリを一つ、自分で作る
+## 目次
 
-- 必須要件は **HTTPS ／ OIDC認証 ／ Git管理**
-- テーマは自由。**何を作るかも、自分で決める**
-
----
-
-## 作ったのは「どこへ逃げればいい？」に答えるアプリ
-
-- きっかけは、最近よく地震があること。
-  「自分は、どこに逃げればいいんだろう」と考えた
-- 既存のハザードマップは情報が多く、**とっさの判断には向かない**
-
-<blockquote>「見て考える地図」ではなく、「その場の答え」がほしかった。</blockquote>
+1. 作ったもの（ざっくり）
+2. どう作ったか ― AIと、ぜんぶブラウザで
+3. 感じたこと（本題）
+4. まとめ
 
 ---
 
-## 作り方：AIと対話しながら
+## 作ったもの
+
+- きっかけは、最近よく地震があること。「自分はどこに逃げればいい？」を知りたかった
+- 災害時に、**避難所と避難ルートを案内する Web アプリ** を AI と作った
+- 課題の必須要件（**HTTPS ／ OIDC認証 ／ Git管理**）も満たしている
+
+<blockquote>数時間で作ったものです。中身の説明より、作ってみての気づきを話します。</blockquote>
+
+---
+
+## どう作ったか：AIと対話しながら
 
 <div class="flow">
 <div class="n">やりたいことを<br>AIに伝える</div>
@@ -125,13 +115,13 @@ Kyoko Takazawa
 
 ---
 
-## できたこと（詳しくは付録に）
+## しかも、ぜんぶ「ブラウザ」で完結した
 
-- 災害の種類によって、逃げる先が **変わる**
-- 危険な浸水エリアを **避けて** 案内する
-- 電波がなくても、一度見た地域なら **使える**（オフライン対応）
+- アプリは **GitHub に静的サイトとして公開**（サーバーもお金も不要）
+- コードを書くのも **ブラウザ版の VS Code**
+- 作ってくれるのは **AI（Claude Code）**
 
-**公開URL** https://kyokoron.github.io/team-challenge/
+<p class="sub">環境構築も、専用ソフトもいらない。<br>AIでアプリが作れて、しかもブラウザだけで完結する ― <span class="mk">いい時代になった</span>と思う。</p>
 
 ---
 
@@ -156,7 +146,7 @@ Kyoko Takazawa
 
 <!-- _class: msg -->
 
-<p class="punch">「動く」ことと「正しい」ことは、<br><span class="mk">別物</span>だった。</p>
+<p class="punch">「動く」ことと「正しい」ことは、<br>別物だった。</p>
 
 <p class="sub">避難の案内は、間違えれば命に関わる。ここが一番の気づき。</p>
 
@@ -218,7 +208,7 @@ Kyoko Takazawa
 </div>
 </div>
 
-<p class="sub" style="margin-top:14px">コードを書く力より、<span class="mk">「何を解くか」を決める力</span>。</p>
+<p class="sub" style="margin-top:14px">コードを書く力より、「何を解くか」を決める力。</p>
 
 ---
 
@@ -252,7 +242,7 @@ Anthropic（Claudeの開発元）も、近いことを言っていた。
 - だから **AIが読めて、直せる**。Git で変更も管理できる
 
 <div class="box accent">
-「テキストで伝える → AIが形にする」時代に、<strong>資料もテキストで持てる</strong>のは相性がいい。<br>（凝ったデザインで見せるなら、Canva等が今も有利）
+「テキストで伝える → AIが形にする」時代に、<strong>資料もテキストで持てる</strong>のは相性がいい。
 </div>
 
 ---
@@ -267,7 +257,7 @@ Anthropic（Claudeの開発元）も、近いことを言っていた。
 
 <!-- _class: msg -->
 
-<p class="punch">AIは、速く形にする相棒。<br>ただ、<span class="mk">舵を握るのは人</span>。</p>
+<p class="punch">AIは、速く形にする相棒。<br>ただ、舵を握るのは人。</p>
 
 <p class="sub">一番の収穫は、成果物そのものよりも<br>「どこを自分がやるべきか」が見えたこと。</p>
 
