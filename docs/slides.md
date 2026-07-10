@@ -29,6 +29,15 @@ small { color: #6b6862; }
 section::after { color: #b3aea4; font-size: 15px; }
 .cols { display: flex; gap: 40px; align-items: flex-start; margin-top: .2em; }
 .cols > div { flex: 1; }
+.cols.cards { align-items: stretch; gap: 28px; }
+.card { border-radius: 12px; padding: 22px 26px; }
+.card h3 { margin: 0 0 .55em; font-size: 23px; }
+.card ul { padding-left: 1.15em; margin: 0; }
+.card li { margin: .5em 0; font-size: .95em; }
+.card.ai { background:#f3f5f4; border:1px solid #dde3e1; }
+.card.ai h3 { color:#5c6b68; }
+.card.human { background:#e9f3ed; border:2px solid #1c5b63; }
+.card.human h3 { color:#12603f; }
 .note { color: #5c5a54; font-size: .84em; margin-top: 1em; line-height: 1.7; }
 .chain { display:flex; flex-direction:column; gap:5px; margin:4px 0; align-items:stretch; }
 .chain span { background:#f4f6f5; border:1px solid #cdddda; border-radius:6px; padding:6px 10px; font-size:.62em; text-align:center; }
@@ -123,24 +132,27 @@ Kyoko Takazawa
 
 ## 知見④ 人の役割は「実装」から「判断」へ
 
-<div class="cols vcols">
-<div>
+<div class="cols cards">
+<div class="card ai">
 
-<h3>これまで</h3>
-<div class="chain"><span>ユーザー</span><span class="ar">↓ UIを操作</span><span>UI（アプリ）</span><span class="ar">↓</span><span>機能（ロジック）</span><span class="ar">↓</span><span>データ</span></div>
-<div class="vc old">価値の中心：UI設計・機能開発・実装</div>
-
-</div>
-<div>
-
-<h3>これから</h3>
-<div class="chain"><span>ユーザー</span><span class="ar">↓ 目的を伝える</span><span>AI（理解・推論）</span><span class="ar">↓</span><span>データ</span></div>
-<div class="vc">価値の中心：ドメイン理解・データ整備・課題設定</div>
+### AIに任せられること
+- 実装（コードを書く）
+- 定型的な修正・リファクタ
+- データの変換・整形
 
 </div>
+<div class="card human">
+
+### 人が担うこと
+- 何を作るか（課題設定）
+- ドメインの理解
+- 出力の検証・レビュー
+- 品質と安全の最終判断
+
+</div>
 </div>
 
-<p class="note">実装の速さは AI に任せられます。<br>人が担うのは、ドメイン理解・課題設定・レビューです。</p>
+<p class="note">実装の速さは AI に任せ、人は「判断」に集中する。役割の重心が移っています。</p>
 
 ---
 
