@@ -24,6 +24,7 @@
       </div>
       <div class="topbar-right">
         <span class="topbar-note">参考情報 / 平常時の避難計画支援</span>
+        <button id="install-btn" class="secondary-btn hidden" title="このアプリをホーム画面／デスクトップに追加">アプリを追加</button>
         <button id="login-btn-header" class="secondary-btn hidden">ログイン</button>
         <div id="user-area" class="user-area hidden">
           <span id="user-name"></span>
@@ -115,6 +116,45 @@
         navigator.serviceWorker.register("./sw.js").catch((e) => console.warn("SW登録失敗:", e));
       });
     }
+
+    // PWA インストール（ホーム画面／デスクトップに追加）
+    (function () {
+      const btn = document.getElementById("install-btn");
+      if (!btn) return;
+      const standalone =
+        window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      let deferred = null;
+
+      if (standalone) return; // すでにインストール済みなら出さない
+
+      // Android / デスクトップChrome：ネイティブのインストールプロンプト
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferred = e;
+        btn.classList.remove("hidden");
+      });
+
+      btn.addEventListener("click", async () => {
+        if (deferred) {
+          deferred.prompt();
+          await deferred.userChoice;
+          deferred = null;
+          btn.classList.add("hidden");
+        } else if (isIOS) {
+          alert(
+            "このアプリはホーム画面に追加できます。\n\n" +
+              "Safari下部の「共有」ボタン → 「ホーム画面に追加」を選んでください。\n" +
+              "追加後は、オフラインでも起動できます（一度オンラインで開いた範囲のみ）。"
+          );
+        }
+      });
+
+      window.addEventListener("appinstalled", () => btn.classList.add("hidden"));
+
+      // iOS Safari は beforeinstallprompt 非対応 → 手順案内のため常に表示
+      if (isIOS) btn.classList.remove("hidden");
+    })();
   </script>
 </body>
 </html>
